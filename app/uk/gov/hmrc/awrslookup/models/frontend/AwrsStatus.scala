@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.awrslookup.models
+package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json._
 
