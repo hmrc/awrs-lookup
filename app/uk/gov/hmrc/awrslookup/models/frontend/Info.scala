@@ -25,5 +25,20 @@ case class Info(businessName: Option[String] = None,
                )
 
 object Info {
+
+  val etmpReader = new Reads[Info] {
+    def reads(js: JsValue): JsResult[Info] =
+      for {
+        companyName <- (js \ "companyName").validateOpt[String]
+        tradingName <- (js \ "tradingName").validateOpt[String]
+        businessAddress <- (js \ "businessAddress").validate[Address]
+      } yield {
+        Info(businessName = companyName,
+          tradingName = tradingName,
+          fullName = None, // TODO how to handle SoleTrader
+          address = Some(businessAddress))
+      }
+  }
+
   implicit val frontEndFormatter = Json.format[Info]
 }

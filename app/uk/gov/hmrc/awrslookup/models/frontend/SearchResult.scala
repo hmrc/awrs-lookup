@@ -21,5 +21,20 @@ import play.api.libs.json._
 case class SearchResult(results: List[AwrsEntry])
 
 object SearchResult {
+
+  val etmpReader = new Reads[SearchResult] {
+    def reads(js: JsValue): JsResult[SearchResult] =
+      for {
+        business <- (js).validate[Business](Business.etmpReader)
+        group <- (js).validate[Option[Group]](Group.etmpReader)
+      } yield {
+        val result = group match {
+          case Some(group) => group
+          case _ => business
+        }
+        SearchResult(results = List(result))
+      }
+  }
+
   implicit val frontEndFormatter = Json.format[SearchResult]
 }
