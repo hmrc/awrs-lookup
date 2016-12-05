@@ -45,7 +45,7 @@ class LookupController extends BaseController {
         val t = SearchResult.frontEndFormatter.writes(r)
         Future.successful(Ok(t))
       case _ =>
-        Future.successful(NotFound(""))
+        Future.successful(NotFound("AWRS reference not found"))
     }
 
   }
