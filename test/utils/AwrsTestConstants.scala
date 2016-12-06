@@ -21,5 +21,6 @@ object AwrsTestConstants extends AwrsTestConstants
 trait AwrsTestConstants {
 
   lazy val testRefNo = "XAAW0000012345"
+  lazy val invalidRef = "InvalidRef"
 
 }
