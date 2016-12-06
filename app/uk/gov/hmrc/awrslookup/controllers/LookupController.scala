@@ -27,16 +27,19 @@ class LookupController extends BaseController {
 
   implicit def conv[T](data: T): Option[T] = Some(data)
 
+  val testInfo = (id:String) => Info(s"testBusinessName$id", s"testTradingName$id", s"testFullName$id",
+    Address(s"testline1$id", s"testline2$id", s"testline3$id", s"testline4$id", s"testPostCode$id", s"testCountry$id"))
+
   def lookup(awrsRef: String) = Action.async { implicit request =>
     val res:Option[SearchResult] = awrsRef match {
       case "XXAW00000123457" =>
         SearchResult(
           List(
-            Business("XXAW00000123456", "1 April 2017", Pending, Info("info", "info")),
-            Group("XXAW00000123455", "1 April 2017", Pending, Info("info", "info", None, Address("add1", "add2", None, None, "NE345TH", "United Kingdom")), List(Info("info", "info"), Info("info2", "info2")))
+            Business("XXAW00000123456", "1 April 2017", Pending, testInfo(" bus")),
+            Group("XXAW00000123455", "1 April 2017", Pending, testInfo(" group"), List(testInfo(" member 1"), testInfo(" member 2")))
           ))
-      case "XXAW00000123456" => SearchResult(List(Business("XXAW00000123456", "1 April 2017", Pending, Info("info", "info"))))
-      case "XXAW00000123455" => SearchResult(List(Group("XXAW00000123455", "1 April 2017", Pending, Info("info", "info"), List(Info("info", "info"), Info("info2", "info2")))))
+      case "XXAW00000123456" => SearchResult(List(Business("XXAW00000123456", "1 April 2017", Pending, testInfo(" bus"))))
+      case "XXAW00000123455" => SearchResult(List(Group("XXAW00000123455", "1 April 2017", Pending, testInfo(" group"), List(testInfo(" member 1"), testInfo(" member 2")))))
       case "XXAW00000123454" => SearchResult(List())
       case _ => None
     }
