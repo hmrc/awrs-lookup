@@ -63,7 +63,6 @@ object Address {
         postcode <- (js \ "postcode").validateOpt[String]
         countryCode <- (js \ "country").validateOpt[String]
       } yield {
-        println("COUNTRY \n\n"+countryCode)
         Address(postcode = postcode, addressLine1 = addressLine1, addressLine2 = addressLine2, addressLine3 = addressLine3,
           addressLine4 = addressLine4, addressCountry = countryCode.flatMap(CountryCodes.getCountry))
       }
