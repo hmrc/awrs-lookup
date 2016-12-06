@@ -22,7 +22,7 @@ case class SearchResult(results: List[AwrsEntry])
 
 object SearchResult {
 
-  val etmpReader = new Reads[SearchResult] {
+  def etmpReader(implicit environment: play.api.Environment) = new Reads[SearchResult] {
     def reads(js: JsValue): JsResult[SearchResult] =
       for {
         business <- (js).validate[Business](Business.etmpReader)

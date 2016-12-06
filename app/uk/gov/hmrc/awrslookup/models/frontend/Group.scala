@@ -28,7 +28,7 @@ case class Group(awrsRef: String,
 
 object Group {
 
-  val etmpReader = new Reads[Option[Group]] {
+  def etmpReader(implicit environment: play.api.Environment) = new Reads[Option[Group]] {
     def reads(js: JsValue): JsResult[Option[Group]] =
       for {
         awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]

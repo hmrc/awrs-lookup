@@ -17,15 +17,14 @@
 package models
 
 import uk.gov.hmrc.awrslookup.models.frontend.SearchResult
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AwrsTestJson
+import utils.{AwrsTestJson, AwrsUnitTestTraits}
 
-class QuickTestSpec extends UnitSpec {
+class QuickTestSpec extends AwrsUnitTestTraits {
 
   "QuickTestSpec" should {
     "load some test data" in {
 
-      println("TEST:: "+AwrsTestJson.testJson.as[SearchResult](SearchResult.etmpReader))
+      println("TEST:: " + AwrsTestJson.testJson.as[SearchResult](SearchResult.etmpReader))
 
     }
 

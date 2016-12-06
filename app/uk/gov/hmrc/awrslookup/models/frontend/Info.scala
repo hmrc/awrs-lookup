@@ -26,12 +26,12 @@ case class Info(businessName: Option[String] = None,
 
 object Info {
 
-  val etmpReader = new Reads[Info] {
+  def etmpReader(implicit environment: play.api.Environment) = new Reads[Info] {
     def reads(js: JsValue): JsResult[Info] =
       for {
         companyName <- (js \ "companyName").validateOpt[String]
         tradingName <- (js \ "tradingName").validateOpt[String]
-        businessAddress <- (js \ "businessAddress").validate[Address]
+        businessAddress <- (js \ "businessAddress").validate[Address](Address.etmpReader)
       } yield {
         Info(businessName = companyName,
           tradingName = tradingName,
