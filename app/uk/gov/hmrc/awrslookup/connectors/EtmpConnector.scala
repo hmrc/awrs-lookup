@@ -35,7 +35,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads {
 
   val http: HttpGet = WSHttp
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier) =
+  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
     http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
 
   def createHeaderCarrier(headerCarrier: HeaderCarrier): HeaderCarrier = {

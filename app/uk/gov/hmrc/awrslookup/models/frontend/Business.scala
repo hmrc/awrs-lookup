@@ -27,7 +27,7 @@ case class Business(awrsRef: String,
 
 object Business {
 
-  def etmpReader(implicit environment: play.api.Environment) = new Reads[Business] {
+  def etmpReader(implicit environment: play.api.Environment): Reads[Business] = new Reads[Business] {
     def reads(js: JsValue): JsResult[Business] =
       for {
         awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]

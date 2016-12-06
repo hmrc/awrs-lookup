@@ -53,7 +53,7 @@ case class Address(
 
 object Address {
 
-  def etmpReader(implicit environment: play.api.Environment) = new Reads[Address] {
+  def etmpReader(implicit environment: play.api.Environment): Reads[Address] = new Reads[Address] {
     def reads(js: JsValue): JsResult[Address] =
       for {
         addressLine1 <- (js \ "addressLine1").validate[String]

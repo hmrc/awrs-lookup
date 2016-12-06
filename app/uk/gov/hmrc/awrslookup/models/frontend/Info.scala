@@ -26,7 +26,7 @@ case class Info(businessName: Option[String] = None,
 
 object Info {
 
-  def etmpReader(implicit environment: play.api.Environment) = new Reads[Info] {
+  def etmpReader(implicit environment: play.api.Environment): Reads[Info] = new Reads[Info] {
     def reads(js: JsValue): JsResult[Info] =
       for {
         companyName <- (js \ "companyName").validateOpt[String]
