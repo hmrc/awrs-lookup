@@ -20,6 +20,7 @@ object AwrsPathConstants extends AwrsPathConstants
 
 trait AwrsPathConstants {
 
-  lazy val testJsonPath = "/test.json"
+  lazy val groupJsonPath = "/group.json"
+  lazy val businessJsonPath = "/business.json"
 
 }

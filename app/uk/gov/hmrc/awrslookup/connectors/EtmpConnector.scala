@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
-import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.awrslookup.WSHttp
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._

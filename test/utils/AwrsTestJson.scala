@@ -22,7 +22,10 @@ object AwrsTestJson extends AwrsTestJson
 
 trait AwrsTestJson extends AwrsPathConstants {
 
-  lazy val testJsonString = load(testJsonPath)
-  lazy val testJson = loadAndParseJson(testJsonPath)
+  lazy val groupJsonString = load(groupJsonPath)
+  lazy val businessJsonString = load(businessJsonPath)
+
+  lazy val groupJson = loadAndParseJson(groupJsonPath)
+  lazy val businessJson = loadAndParseJson(businessJsonPath)
 
 }
