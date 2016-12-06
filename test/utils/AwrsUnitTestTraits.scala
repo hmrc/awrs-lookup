@@ -16,17 +16,18 @@
 
 package utils
 
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneServerPerSuite
 import play.api.Environment
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import org.scalatestplus.play.OneServerPerSuite
+
 import scala.concurrent.Future
 
 
-trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfterEach with OneServerPerSuite {
+trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfter with OneServerPerSuite {
 
   implicit lazy val hc = HeaderCarrier()
 

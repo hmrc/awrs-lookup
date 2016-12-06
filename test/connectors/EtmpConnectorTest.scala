@@ -18,14 +18,8 @@ package connectors
 
 import java.util.UUID
 
-import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.Play
-import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
@@ -34,12 +28,12 @@ import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.http.logging.SessionId
 import uk.gov.hmrc.play.http.ws.{WSGet, WSPost, WSPut}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AwrsTestJson
+import utils.{AwrsTestJson, AwrsUnitTestTraits}
+import play.api.http.Status._
 
 import scala.concurrent.Future
 
-class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
+class EtmpConnectorTest extends AwrsUnitTestTraits {
 
   object TestAuditConnector extends AuditConnector with AppName with RunMode {
     override lazy val auditingConfig = LoadAuditingConfig("auditing")
@@ -50,7 +44,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
 
     override def auditConnector: AuditConnector = TestAuditConnector
 
-    override def appName = Play.configuration.getString("appName").getOrElse("awrs-lookup")
+    override def appName: String = app.configuration.getString("appName").getOrElse("awrs-lookup")
   }
 
   val mockWSHttp = mock[MockHttp]
@@ -71,7 +65,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
       val lookupSuccess = AwrsTestJson.businessJson
       val awrsRefNo = "XAAW0000012345"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(lookupSuccess))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
       val result = TestEtmpConnector.lookup(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
