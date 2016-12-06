@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.http.ws.{WSGet, WSPost, WSPut}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 import play.api.http.Status._
+import utils.AwrsTestConstants._
 
 import scala.concurrent.Future
 
@@ -63,7 +64,7 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
 
     "lookup an application with a valid reference number " in {
       val lookupSuccess = AwrsTestJson.businessJson
-      val awrsRefNo = "XAAW0000012345"
+      val awrsRefNo = testRefNo
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
       val result = TestEtmpConnector.lookup(awrsRefNo)

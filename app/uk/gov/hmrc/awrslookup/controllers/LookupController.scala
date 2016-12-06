@@ -34,7 +34,7 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
   val lookupService: EtmpLookupService = EtmpLookupService
 
   def lookup(awrsRef: String): Action[AnyContent] = Action.async { implicit request =>
-    lookupService.lookupApplication(awrsRef).map {
+    lookupService.lookup(awrsRef).map {
       lookupResponse =>
         lookupResponse.status match {
           case OK => val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpReader(environment = environment))

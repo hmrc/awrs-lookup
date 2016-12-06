@@ -19,9 +19,9 @@ package models
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 import utils.AwrsUnitTestTraits
 
-class CountryCodeSpec extends AwrsUnitTestTraits {
+class CountryCodeTest extends AwrsUnitTestTraits {
 
-  "CountryCodeSpec" should {
+  "CountryCodeTest" should {
     "successfully convert a country code to a country" in {
       CountryCodes.getCountry("GB") should be (Some("United Kingdom"))
     }

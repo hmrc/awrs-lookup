@@ -19,9 +19,9 @@ package models
 import uk.gov.hmrc.awrslookup.models.frontend.{Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 
-class ModelReaderSpec extends AwrsUnitTestTraits {
+class ModelReaderTest extends AwrsUnitTestTraits {
 
-  "ModelReaderSpec" should {
+  "ModelReaderTest" should {
     "successfully read the group json into a group object" in {
       val groupObject = AwrsTestJson.groupJson.as[SearchResult](SearchResult.etmpReader)
       groupObject.results.head.isInstanceOf[Group] shouldBe true

@@ -29,7 +29,7 @@ object EtmpLookupService extends EtmpLookupService {
 trait EtmpLookupService {
   val etmpConnector: EtmpConnector
 
-  def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  def lookup(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.lookup(awrsRefNo) map {
       response =>
         response.status match {
