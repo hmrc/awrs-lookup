@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.models.utils
 
-import javax.inject.Inject
+import java.io.InputStream
 
 import play.api.Environment
 import play.api.libs.json.{JsValue, Json}
@@ -31,59 +31,22 @@ object CountryCodes {
     implicit val formats = Json.format[Country]
   }
 
-  def jsonInputStream (implicit environment:Environment)= environment.resourceAsStream("country-code.json")
+  def jsonInputStream(implicit environment: Environment): Option[InputStream] = environment.resourceAsStream("country-code.json")
 
-  private def json(implicit environment:Environment): JsValue = {
+  private def json(implicit environment: Environment): JsValue = {
     jsonInputStream match {
       case Some(inputStream) => Json.parse(Source.fromInputStream(inputStream, "UTF-8").mkString)
       case _ => throw new Exception("Country codes file not found")
     }
   }
 
-  def countries(implicit environment:Environment): String = {
-    Json.toJson(json.\\("country").toList.map(x => x.toString().replaceAll("\"", ""))).toString()
-  }
-
-  private def countryCodesMap(implicit environment:Environment): Map[String, String] = {
+  private def countryCodesMap(implicit environment: Environment): Map[String, String] = {
     val countryCodeList = json.validate[List[Country]].get
     countryCodeList.map(country => (country.countryCode, country.country)).toMap
   }
 
-  private def countriesMap(implicit environment:Environment): Map[String, String] = {
-    val countryList = json.validate[List[Country]].get
-    countryList.map(country => (country.country.toLowerCase, country.countryCode)).toMap
-  }
-
-  def getCountry(countryCode: String)(implicit environment:Environment): Option[String] = {
+  def getCountry(countryCode: String)(implicit environment: Environment): Option[String] = {
     countryCodesMap.get(countryCode)
   }
-
-  def getCountryCode(country: String)(implicit environment:Environment): Option[String] = {
-    countriesMap.get(country.toLowerCase)
-  }
-
-//  def getAddressWithCountryCode(addressesData: Option[Address]): Option[Address] =
-//    addressesData match {
-//      case Some(address) => {
-//        val countryCode = CountryCodes.getCountryCode(address.addressCountry.getOrElse("")) match {
-//          case Some(cc) => Some(cc)
-//          case _ => Some("GB")
-//        }
-//        Some(address.copy(addressCountryCode = countryCode))
-//      }
-//      case _ => None
-//    }
-//
-//  def getAddressWithCountry(addressesData: Option[Address]): Option[Address] =
-//    addressesData match {
-//      case Some(address) => {
-//        val country = CountryCodes.getCountry(address.addressCountryCode.getOrElse("")) match {
-//          case Some(country) => Some(country)
-//          case _ => Some("United Kingdom")
-//        }
-//        Some(address.copy(addressCountry = country))
-//      }
-//      case _ => None
-//    }
 
 }
