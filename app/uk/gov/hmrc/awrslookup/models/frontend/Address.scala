@@ -20,11 +20,11 @@ import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 
 case class Address(addressLine1: String,
-                    addressLine2: Option[String] = None,
-                    addressLine3: Option[String] = None,
-                    addressLine4: Option[String] = None,
-                    postcode: Option[String] = None,
-                    addressCountry: Option[String] = None)
+                   addressLine2: Option[String] = None,
+                   addressLine3: Option[String] = None,
+                   addressLine4: Option[String] = None,
+                   postcode: Option[String] = None,
+                   addressCountry: Option[String] = None)
 
 object Address {
 
@@ -39,7 +39,7 @@ object Address {
         countryCode <- (js \ "country").validateOpt[String]
       } yield {
         Address(postcode = postcode, addressLine1 = addressLine1, addressLine2 = addressLine2, addressLine3 = addressLine3,
-          addressLine4 = addressLine4, addressCountry = countryCode.flatMap(CountryCodes.getCountry))
+          addressLine4 = addressLine4, addressCountry = countryCode.filterNot(_ == "GB").flatMap(CountryCodes.getCountry))
       }
   }
 
