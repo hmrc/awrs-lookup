@@ -17,6 +17,7 @@
 package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
+import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 
 case class Group(awrsRef: String,
                  registrationDate: String,
@@ -32,8 +33,8 @@ object Group {
     def reads(js: JsValue): JsResult[Option[Group]] =
       for {
         awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
-        startDate <- (js \ "startDate").validate[String]
-        endDate <- (js \ "endDate").validateOpt[String]
+        startDate <- (js \ "startDate").validate[String](EtmpDateReader)
+        endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
         wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
         groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
       } yield {
