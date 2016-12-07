@@ -22,7 +22,7 @@ case class Business(awrsRef: String,
                     registrationDate: String,
                     status: AwrsStatus,
                     info: Info,
-                    deRegistrationDate: Option[String] = None
+                    registrationEndDate: Option[String] = None
                    ) extends AwrsEntry
 
 object Business {
@@ -42,7 +42,7 @@ object Business {
             case _ => AwrsStatus.Approved
           },
           info = wholesaler,
-          deRegistrationDate = endDate)
+          registrationEndDate = endDate)
       }
   }
 

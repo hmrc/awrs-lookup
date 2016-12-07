@@ -23,8 +23,7 @@ trait AwrsEntry {
 
   def registrationDate: String
 
-  // in case we don't get it
-  def deRegistrationDate: Option[String]
+  def registrationEndDate: Option[String]
 
   def status: AwrsStatus
 

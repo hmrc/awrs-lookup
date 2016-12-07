@@ -23,7 +23,7 @@ case class Group(awrsRef: String,
                  status: AwrsStatus,
                  info: Info,
                  members: List[Info],
-                 deRegistrationDate: Option[String] = None
+                 registrationEndDate: Option[String] = None
                 ) extends AwrsEntry
 
 object Group {
@@ -46,7 +46,7 @@ object Group {
             },
             info = wholesaler,
             members = grpMembers,
-            deRegistrationDate = endDate))
+            registrationEndDate = endDate))
           case _ => None
         }
       }
