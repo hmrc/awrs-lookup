@@ -25,6 +25,8 @@ object EtmpDateReader extends Reads[String] {
 
   val etmpDatePattern = "yyyy-MM-dd"
 
+  val frontEndDatePattern = "dd MMMM yyyy"
+
   val parseDate = (str: JsResult[String]) => DateTime.parse(str.get, DateTimeFormat.forPattern(etmpDatePattern))
 
   val earliestPossibleDate = DateTime.parse("2017-01-04", DateTimeFormat.forPattern(etmpDatePattern))
@@ -36,7 +38,7 @@ object EtmpDateReader extends Reads[String] {
       case true => earliestPossibleDate
       case false => dateTime
     }
-    JsSuccess(transformedDate.toString(etmpDatePattern))
+    JsSuccess(transformedDate.toString(frontEndDatePattern))
   }
 
 }
