@@ -34,18 +34,11 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.isInstanceOf[Business] shouldBe true
     }
 
-
     "successfully convert the business json country code to a country" in {
       val frCountryCode = "FR"
       val frCountry = "France"
       val businessJsonString = AwrsTestJson.businessJsonString
-      val updatedJson = updateJson(
-        Json.obj("wholesaler" ->
-          Json.obj("businessAddress" ->
-            Json.obj("country" -> frCountryCode)
-          )
-        ),
-        businessJsonString)
+      val updatedJson = businessJsonString.updateEtmpCountry(frCountryCode)
       updatedJson should include(frCountryCode)
       updatedJson should not include frCountry
       val businessObject = Json.parse(updatedJson).as[SearchResult](SearchResult.etmpReader)
@@ -62,6 +55,50 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.info.get.address.get.addressCountry shouldBe None
     }
 
+
+    "Correctly format the date fields" in {
+      val date = "2017-4-1"
+      val expected = "01 April 2017"
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.registrationDate shouldBe expected
+      businessObject.results.head.get.registrationEndDate.get shouldBe expected
+    }
+
+    "update Dates if they are before 1st April 2017" in {
+      val date = "2017-3-31"
+      val expected = "01 April 2017"
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.registrationDate shouldBe expected
+      businessObject.results.head.get.registrationEndDate.get shouldBe expected
+    }
+
+    "do not update Dates if they are after 1st April 2017" in {
+      val date = "2017-4-2"
+      val expected = "02 April 2017"
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.registrationDate shouldBe expected
+      businessObject.results.head.get.registrationEndDate.get shouldBe expected
+    }
   }
+
+  implicit class JsonStringUtil(jsonString: String) {
+    def updateEtmpCountry(newCountry: String): String =
+      updateJson(
+        Json.obj("wholesaler" ->
+          Json.obj("businessAddress" ->
+            Json.obj("country" -> newCountry)
+          )
+        ), jsonString)
+
+    def updateEtmpStartDate(newDate: String): String =
+      updateJson(Json.obj("startDate" -> newDate), jsonString)
+
+    def updateEtmpEndDate(newDate: String): String =
+      updateJson(Json.obj("endDate" -> newDate), jsonString)
+  }
+
 
 }

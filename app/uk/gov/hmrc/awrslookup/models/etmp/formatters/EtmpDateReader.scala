@@ -29,7 +29,7 @@ object EtmpDateReader extends Reads[String] {
 
   val parseDate = (str: JsResult[String]) => DateTime.parse(str.get, DateTimeFormat.forPattern(etmpDatePattern))
 
-  val earliestPossibleDate = DateTime.parse("2017-01-04", DateTimeFormat.forPattern(etmpDatePattern))
+  val earliestPossibleDate = DateTime.parse("2017-04-01", DateTimeFormat.forPattern(etmpDatePattern))
 
   override def reads(json: JsValue): JsResult[String] = {
     val str = json.validate[String]
