@@ -55,7 +55,6 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.info.get.address.get.addressCountry shouldBe None
     }
 
-
     "Correctly format the date fields" in {
       val date = "2017-4-1"
       val expected = "01 April 2017"
@@ -85,6 +84,7 @@ class ModelReaderTest extends AwrsUnitTestTraits {
   }
 
   implicit class JsonStringUtil(jsonString: String) {
+
     def updateEtmpCountry(newCountry: String): String =
       updateJson(
         Json.obj("wholesaler" ->
@@ -98,7 +98,7 @@ class ModelReaderTest extends AwrsUnitTestTraits {
 
     def updateEtmpEndDate(newDate: String): String =
       updateJson(Json.obj("endDate" -> newDate), jsonString)
-  }
 
+  }
 
 }
