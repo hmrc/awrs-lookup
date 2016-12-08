@@ -17,7 +17,9 @@
 package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
-import uk.gov.hmrc.awrslookup.models.etmp.formatters._
+import uk.gov.hmrc.awrslookup.models._
+import etmp.formatters._
+import utils.ModelHelper._
 
 case class Business(awrsRef: String,
                     registrationDate: String,
@@ -38,10 +40,7 @@ object Business {
       } yield {
         Business(awrsRef = awrsRegistrationNumber,
           registrationDate = startDate,
-          status = endDate match {
-            case Some(_) => AwrsStatus.DeRegistered
-            case _ => AwrsStatus.Approved
-          },
+          status = getStatus(endDate),
           info = wholesaler,
           registrationEndDate = endDate)
       }

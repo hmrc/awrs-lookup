@@ -18,6 +18,7 @@ package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
+import uk.gov.hmrc.awrslookup.models.utils.ModelHelper.getStatus
 
 case class Group(awrsRef: String,
                  registrationDate: String,
@@ -41,10 +42,7 @@ object Group {
         groupMembers match {
           case Some(grpMembers) => Some(Group(awrsRef = awrsRegistrationNumber,
             registrationDate = startDate,
-            status = endDate match {
-              case Some(_) => AwrsStatus.DeRegistered
-              case _ => AwrsStatus.Approved
-            },
+            status = getStatus(endDate),
             info = wholesaler,
             members = grpMembers,
             registrationEndDate = endDate))
