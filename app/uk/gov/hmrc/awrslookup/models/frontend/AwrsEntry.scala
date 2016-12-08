@@ -19,7 +19,7 @@ package uk.gov.hmrc.awrslookup.models.frontend
 import play.api.libs.json.{JsValue, Json}
 
 trait AwrsEntry {
-  def awrsRef: String //TODO what if it's pending? would pending companies be on the register?
+  def awrsRef: String
 
   def registrationDate: String
 

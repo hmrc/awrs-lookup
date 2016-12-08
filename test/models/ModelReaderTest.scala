@@ -16,8 +16,10 @@
 
 package models
 
+import play.api.libs.json.Json
 import uk.gov.hmrc.awrslookup.models.frontend.{Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
+import utils.TestUtil._
 
 class ModelReaderTest extends AwrsUnitTestTraits {
 
@@ -32,14 +34,32 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.isInstanceOf[Business] shouldBe true
     }
 
+
     "successfully convert the business json country code to a country" in {
+      val frCountryCode = "FR"
+      val frCountry = "France"
+      val businessJsonString = AwrsTestJson.businessJsonString
+      val updatedJson = updateJson(
+        Json.obj("wholesaler" ->
+          Json.obj("businessAddress" ->
+            Json.obj("country" -> frCountryCode)
+          )
+        ),
+        businessJsonString)
+      updatedJson should include(frCountryCode)
+      updatedJson should not include frCountry
+      val businessObject = Json.parse(updatedJson).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.info.get.address.get.addressCountry.get shouldBe frCountry
+    }
+
+    "if the country code is GB, do not add United Kingdom into the country field" in {
       val gbCountryCode = "GB"
       val gbCountry = "United Kingdom"
       val businessJsonString = AwrsTestJson.businessJsonString
-      businessJsonString should include (gbCountryCode)
+      businessJsonString should include(gbCountryCode)
       businessJsonString should not include gbCountry
       val businessObject = AwrsTestJson.businessJson.as[SearchResult](SearchResult.etmpReader)
-      businessObject.results.head.get.info.get.address.get.addressCountry.get shouldBe gbCountry
+      businessObject.results.head.get.info.get.address.get.addressCountry shouldBe None
     }
 
   }
