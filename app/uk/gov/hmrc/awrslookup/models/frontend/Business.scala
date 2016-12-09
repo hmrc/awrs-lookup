@@ -21,7 +21,7 @@ import uk.gov.hmrc.awrslookup.models._
 import etmp.formatters._
 import utils.ModelHelper._
 
-case class Business(awrsRef: Option[String] = None,
+case class Business(awrsRef: String,
                     registrationDate: Option[String] = None,
                     status: AwrsStatus,
                     info: Info,
@@ -33,7 +33,7 @@ object Business {
   def etmpReader(implicit environment: play.api.Environment): Reads[Business] = new Reads[Business] {
     def reads(js: JsValue): JsResult[Business] =
       for {
-        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validateOpt[String]
+        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
         startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
         endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
         wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
