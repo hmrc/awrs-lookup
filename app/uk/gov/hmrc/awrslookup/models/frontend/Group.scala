@@ -20,8 +20,8 @@ import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 import uk.gov.hmrc.awrslookup.models.utils.ModelHelper.getStatus
 
-case class Group(awrsRef: String,
-                 registrationDate: String,
+case class Group(awrsRef: Option[String] = None,
+                 registrationDate: Option[String] = None,
                  status: AwrsStatus,
                  info: Info,
                  members: List[Info],
@@ -33,8 +33,8 @@ object Group {
   def etmpReader(implicit environment: play.api.Environment): Reads[Option[Group]] = new Reads[Option[Group]] {
     def reads(js: JsValue): JsResult[Option[Group]] =
       for {
-        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
-        startDate <- (js \ "startDate").validate[String](EtmpDateReader)
+        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validateOpt[String]
+        startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
         endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
         wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
         groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))

@@ -19,9 +19,9 @@ package uk.gov.hmrc.awrslookup.models.frontend
 import play.api.libs.json.{JsValue, Json}
 
 trait AwrsEntry {
-  def awrsRef: String
+  def awrsRef: Option[String]
 
-  def registrationDate: String
+  def registrationDate: Option[String]
 
   def registrationEndDate: Option[String]
 

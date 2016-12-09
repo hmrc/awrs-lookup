@@ -19,19 +19,18 @@ package uk.gov.hmrc.awrslookup.models.frontend
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 
-case class Address(addressLine1: String,
+case class Address(addressLine1: Option[String] = None,
                    addressLine2: Option[String] = None,
                    addressLine3: Option[String] = None,
                    addressLine4: Option[String] = None,
                    postcode: Option[String] = None,
                    addressCountry: Option[String] = None)
-
 object Address {
 
   def etmpReader(implicit environment: play.api.Environment): Reads[Address] = new Reads[Address] {
     def reads(js: JsValue): JsResult[Address] =
       for {
-        addressLine1 <- (js \ "addressLine1").validate[String]
+        addressLine1 <- (js \ "addressLine1").validateOpt[String]
         addressLine2 <- (js \ "addressLine2").validateOpt[String]
         addressLine3 <- (js \ "addressLine3").validateOpt[String]
         addressLine4 <- (js \ "addressLine4").validateOpt[String]

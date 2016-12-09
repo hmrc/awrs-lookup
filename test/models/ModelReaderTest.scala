@@ -60,7 +60,7 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       val expected = "01 April 2017"
       val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
-      businessObject.results.head.get.registrationDate shouldBe expected
+      businessObject.results.head.get.registrationDate.get shouldBe expected
       businessObject.results.head.get.registrationEndDate.get shouldBe expected
     }
 
@@ -69,7 +69,7 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       val expected = "01 April 2017"
       val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
-      businessObject.results.head.get.registrationDate shouldBe expected
+      businessObject.results.head.get.registrationDate.get shouldBe expected
       businessObject.results.head.get.registrationEndDate.get shouldBe expected
     }
 
@@ -78,7 +78,7 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       val expected = "02 April 2017"
       val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
-      businessObject.results.head.get.registrationDate shouldBe expected
+      businessObject.results.head.get.registrationDate.get shouldBe expected
       businessObject.results.head.get.registrationEndDate.get shouldBe expected
     }
   }
