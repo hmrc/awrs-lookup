@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.awrslookup.controllers
+package utils
 
-import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
-import scala.concurrent.Future
+object AwrsTestConstants extends AwrsTestConstants
 
-object MicroserviceHelloWorld extends MicroserviceHelloWorld
+trait AwrsTestConstants {
 
-trait MicroserviceHelloWorld extends BaseController {
+  lazy val testRefNo = "XAAW0000012345"
+  lazy val invalidRef = "InvalidRef"
 
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world"))
-	}
 }
