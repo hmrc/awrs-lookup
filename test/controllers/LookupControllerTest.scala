@@ -80,5 +80,13 @@ class LookupControllerTest extends AwrsUnitTestTraits {
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
+    /*
+    *
+    */
+    "lookup awrs entry from HODS for a company name" in {
+      when(mockEtmpLookupService.lookupByName(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(byNameJson))))
+      val result = TestLookupController.lookupByName(testRefNo).apply(FakeRequest())
+      status(result) shouldBe OK
+    }
   }
 }

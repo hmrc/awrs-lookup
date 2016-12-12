@@ -53,7 +53,7 @@ object AwrsEntry {
 
   def etmpReader(implicit environment: play.api.Environment): Reads[AwrsEntry] = new Reads[AwrsEntry] {
     //TODO schema validation
-    def reads(js: JsValue): JsResult[AwrsEntry] =
+    def reads(js: JsValue): JsResult[AwrsEntry] = {
       for {
         awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
         startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
@@ -76,5 +76,6 @@ object AwrsEntry {
             registrationEndDate = endDate)
         }
       }
+    }
   }
 }

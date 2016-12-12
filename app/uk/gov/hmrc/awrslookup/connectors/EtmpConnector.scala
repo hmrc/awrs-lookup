@@ -16,27 +16,34 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
+import play.api.Logger
 import uk.gov.hmrc.awrslookup.WSHttp
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.logging.Authorization
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait EtmpConnector extends ServicesConfig with RawResponseReads {
 
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
   val lookupByUrnURI = "/lookup/id/"
-  val lookupByNameURI = "/lookup?name="
+  val lookupByNameURI = "/lookup?name=" //TODO verify if this will be the actual url
 
   val urlHeaderEnvironment: String
   val urlHeaderAuthorization: String
 
   val http: HttpGet = WSHttp
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
-    http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
+  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
+    val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
+    future.onFailure {
+      case e: Exception => Logger.debug("get request failed: url=$url\ne=$e\n")
+    }
+    future
+  }
 
   def createHeaderCarrier(headerCarrier: HeaderCarrier): HeaderCarrier = {
     headerCarrier.withExtraHeaders("Environment" -> urlHeaderEnvironment).copy(authorization = Some(Authorization(urlHeaderAuthorization)))

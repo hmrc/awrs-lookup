@@ -32,12 +32,13 @@ object SearchResult {
   }
 
   def etmpByNameReader(implicit environment: play.api.Environment): Reads[SearchResult] = new Reads[SearchResult] {
-    def reads(js: JsValue): JsResult[SearchResult] =
+    def reads(js: JsValue): JsResult[SearchResult] = {
       for {
         result <- (js \ "registrations").validate[List[AwrsEntry]](Reads.list(AwrsEntry.etmpReader))
       } yield {
         SearchResult(results = result)
       }
+    }
   }
 
   implicit val frontEndFormatter = Json.format[SearchResult]

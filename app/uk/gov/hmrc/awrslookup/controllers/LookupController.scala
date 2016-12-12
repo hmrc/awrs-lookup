@@ -54,7 +54,8 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
       lookupService.lookupByName(queryString).map {
         lookupResponse =>
           lookupResponse.status match {
-            case OK => val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpByNameReader(environment = environment))
+            case OK =>
+              val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpByNameReader(environment = environment))
               Ok(Json.toJson(convertedJson))
             case NOT_FOUND => NotFound(referenceNotFoundString)
             case BAD_REQUEST => BadRequest(lookupResponse.body)

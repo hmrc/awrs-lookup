@@ -27,17 +27,20 @@ case class Info(businessName: Option[String] = None,
 object Info {
 
   def etmpReader(implicit environment: play.api.Environment): Reads[Info] = new Reads[Info] {
-    def reads(js: JsValue): JsResult[Info] =
+    def reads(js: JsValue): JsResult[Info] = {
+      // should accommodate for both styles. i.e. whether it includes a sub level of groupMember or not
+      val memberLevelJs = (js \ "groupMember").getOrElse(js)
       for {
-        companyName <- (js \ "companyName").validateOpt[String]
-        tradingName <- (js \ "tradingName").validateOpt[String]
-        businessAddress <- (js \ "businessAddress").validate[Address](Address.etmpReader)
+        companyName <- (memberLevelJs \ "companyName").validateOpt[String]
+        tradingName <- (memberLevelJs \ "tradingName").validateOpt[String]
+        businessAddress <- (memberLevelJs \ "businessAddress").validate[Address](Address.etmpReader)
       } yield {
         Info(businessName = companyName,
           tradingName = tradingName,
           fullName = None, // TODO how to handle SoleTrader
           address = Some(businessAddress))
       }
+    }
   }
 
   implicit val frontEndFormatter = Json.format[Info]

@@ -34,6 +34,11 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.isInstanceOf[Business] shouldBe true
     }
 
+    "successfully read the a by name json into a list of AwrsEntry objects" in {
+      val groupObject = AwrsTestJson.byNameJson.as[SearchResult](SearchResult.etmpByNameReader)
+      groupObject.results.size shouldBe 2
+    }
+
     "successfully convert the business json country code to a country" in {
       val frCountryCode = "FR"
       val frCountry = "France"
