@@ -16,7 +16,10 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json._
+import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
+
+import scala.util.Try
 
 trait AwrsEntry {
   def awrsRef: String
@@ -47,4 +50,32 @@ object AwrsEntry {
   }
 
   implicit val frontEndFormatter = Json.format[AwrsEntry]
+
+  def etmpReader(implicit environment: play.api.Environment): Reads[AwrsEntry] = new Reads[AwrsEntry] {
+    //TODO schema validation
+    def reads(js: JsValue): JsResult[AwrsEntry] = {
+      for {
+        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
+        startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
+        endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
+        wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
+        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader)
+        groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
+      } yield {
+        groupMembers match {
+          case Some(grpMembers) => Group(awrsRef = awrsRegistrationNumber,
+            registrationDate = startDate,
+            status = awrsStatus,
+            info = wholesaler,
+            members = grpMembers,
+            registrationEndDate = endDate)
+          case _ => Business(awrsRef = awrsRegistrationNumber,
+            registrationDate = startDate,
+            status = awrsStatus,
+            info = wholesaler,
+            registrationEndDate = endDate)
+        }
+      }
+    }
+  }
 }

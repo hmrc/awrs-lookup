@@ -1,0 +1,73 @@
+{
+  "processingDate": "2001-12-31T12:30:59Z",
+  "registrations": [
+    {
+      "awrsRegistrationNumber": "XXAW00000000001",
+      "startDate": "2001-01-01",
+      "endDate": "2001-01-01",
+      "awrsStatus": "active",
+      "wholesaler": {
+        "companyName": "abcd",
+        "tradingName": "abcdefghijklmnopqrs",
+        "businessAddress": {
+          "addressLine1": "abcdefg",
+          "addressLine2": "abcdefghijklmn",
+          "addressLine3": "abcdefghijklmn",
+          "addressLine4": "a",
+          "country": "GB",
+          "postcode": "TF0 2YZ"
+        }
+      },
+      "groupMembers": [
+        {
+          "groupMember": {
+            "companyName": "abcdefghijk",
+            "tradingName": "abcdefghijklmnopq",
+            "businessAddress": {
+              "addressLine1": "abc",
+              "addressLine2": "abcdefghi",
+              "addressLine3": "abcdefghijklmnop",
+              "addressLine4": "abcde",
+              "country": "GB",
+              "postcode": "TF1 2YZ"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "awrsRegistrationNumber": "XXAW00000000002",
+      "startDate": "2001-01-01",
+      "endDate": "2001-01-01",
+      "awrsStatus": "active",
+      "wholesaler": {
+        "companyName": "abcd",
+        "tradingName": "abcdefghijklmnopqrs",
+        "businessAddress": {
+          "addressLine1": "abcdefg",
+          "addressLine2": "abcdefghijklmn",
+          "addressLine3": "abcdefghijklmn",
+          "addressLine4": "a",
+          "country": "GB",
+          "postcode": "TF2 3YZ"
+        }
+      },
+      "groupMembers": [
+        {
+          "groupMember": {
+            "companyName": "abcdefghijk",
+            "tradingName": "abcdefghijklmnopq",
+            "businessAddress": {
+              "addressLine1": "abc",
+              "addressLine2": "abcdefghi",
+              "addressLine3": "abcdefghijklmnop",
+              "addressLine4": "abcde",
+              "country": "GB",
+              "postcode": "TF3 4YZ"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

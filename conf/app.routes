@@ -1,3 +1,4 @@
 # microservice specific routes
 
-GET        /query/:awrsRef             uk.gov.hmrc.awrslookup.controllers.LookupController.lookup(awrsRef: String)
+GET        /query/urn/:awrsRef             uk.gov.hmrc.awrslookup.controllers.LookupController.lookupByUrn(awrsRef: String)
+GET        /query/name/:queryString        uk.gov.hmrc.awrslookup.controllers.LookupController.lookupByName(queryString: String)

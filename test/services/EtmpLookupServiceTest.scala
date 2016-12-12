@@ -49,15 +49,15 @@ class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with Mockito
 
     "successfully lookup an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo
-      when(mockEtmpConnector.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
-      val result = TestEtmpLookupService.lookup(awrsRefNo)
+      when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
+      val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe OK
     }
 
     "return Not Found when passed an reference number that does not exist" in {
       val invalidAwrsRefNo = invalidRef
-      when(mockEtmpConnector.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, None)))
-      val result = TestEtmpLookupService.lookup(invalidAwrsRefNo)
+      when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, None)))
+      val result = TestEtmpLookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
     }
   }

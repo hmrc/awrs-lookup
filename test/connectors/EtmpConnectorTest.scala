@@ -67,7 +67,7 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
       val awrsRefNo = testRefNo
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
-      val result = TestEtmpConnector.lookup(awrsRefNo)
+      val result = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
 

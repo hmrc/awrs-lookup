@@ -45,40 +45,48 @@ class LookupControllerTest extends AwrsUnitTestTraits {
     }
 
     "lookup awrs entry from HODS when passed a valid awrs reference" in {
-      when(mockEtmpLookupService.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(businessJson))))
-      val result = TestLookupController.lookup(testRefNo).apply(FakeRequest())
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(businessJson))))
+      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return NOT FOUND error from HODS when awrs entry is not found" in {
-      when(mockEtmpLookupService.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(lookupFailure))))
-      val result = TestLookupController.lookup(invalidRef).apply(FakeRequest())
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(lookupFailure))))
+      val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return BAD REQUEST error from HODS when the request have not passed validation" in {
-      when(mockEtmpLookupService.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(lookupFailure))))
-      val result = TestLookupController.lookup(invalidRef).apply(FakeRequest())
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(lookupFailure))))
+      val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe BAD_REQUEST
     }
 
     "return INTERNAL SERVER ERROR error from HODS when WS02 is experiencing problems" in {
-      when(mockEtmpLookupService.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(lookupFailure))))
-      val result = TestLookupController.lookup(invalidRef).apply(FakeRequest())
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(lookupFailure))))
+      val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return SERVICE UNAVAILABLE error from HODS when the service is unavilable" in {
-      when(mockEtmpLookupService.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(lookupFailure))))
-      val result = TestLookupController.lookup(invalidRef).apply(FakeRequest())
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(lookupFailure))))
+      val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
     "return INTERNAL SERVER ERROR error from HODS when any other error is encountered" in {
-      when(mockEtmpLookupService.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(GATEWAY_TIMEOUT, Some(lookupFailure))))
-      val result = TestLookupController.lookup(invalidRef).apply(FakeRequest())
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(GATEWAY_TIMEOUT, Some(lookupFailure))))
+      val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
+    /*
+    *
+    */
+    "lookup awrs entry from HODS for a company name" in {
+      when(mockEtmpLookupService.lookupByName(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(byNameJson))))
+      val result = TestLookupController.lookupByName(testRefNo).apply(FakeRequest())
+      status(result) shouldBe OK
+    }
   }
 }

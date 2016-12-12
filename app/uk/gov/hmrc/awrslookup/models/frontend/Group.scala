@@ -18,7 +18,6 @@ package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
-import uk.gov.hmrc.awrslookup.models.utils.ModelHelper.getStatus
 
 case class Group(awrsRef: String,
                  registrationDate: Option[String] = None,
@@ -29,27 +28,6 @@ case class Group(awrsRef: String,
                 ) extends AwrsEntry
 
 object Group {
-
-  def etmpReader(implicit environment: play.api.Environment): Reads[Option[Group]] = new Reads[Option[Group]] {
-    def reads(js: JsValue): JsResult[Option[Group]] =
-      for {
-        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
-        startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
-        endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
-        wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
-        groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
-      } yield {
-        groupMembers match {
-          case Some(grpMembers) => Some(Group(awrsRef = awrsRegistrationNumber,
-            registrationDate = startDate,
-            status = getStatus(endDate),
-            info = wholesaler,
-            members = grpMembers,
-            registrationEndDate = endDate))
-          case _ => None
-        }
-      }
-  }
 
   implicit val frontEndFormatter = Json.format[Group]
 }

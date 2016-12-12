@@ -22,5 +22,6 @@ trait AwrsPathConstants {
 
   lazy val groupJsonPath = "/group.json"
   lazy val businessJsonPath = "/business.json"
+  lazy val byNameJsonPath = "/by_name.json"
 
 }
