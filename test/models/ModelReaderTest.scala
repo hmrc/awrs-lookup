@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.awrslookup.models.frontend.{Business, Group, SearchResult}
+import uk.gov.hmrc.awrslookup.models.frontend.{AwrsStatus, Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 import utils.TestUtil._
 
@@ -81,6 +81,38 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.registrationDate.get shouldBe expected
       businessObject.results.head.get.registrationEndDate.get shouldBe expected
     }
+
+    "correctly convert the 'active' etmp status to the frontend 'Approved' status" in {
+      val etmpStatus = "active"
+      val expectedStatus = AwrsStatus.Approved
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
+
+    "correctly convert the 'deregistered' etmp status to the frontend 'DeRegistered' status" in {
+      val etmpStatus = "deregistered"
+      val expectedStatus = AwrsStatus.DeRegistered
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
+
+    "correctly convert the 'revoked' etmp status to the frontend 'Revoked' status" in {
+      val etmpStatus = "revoked"
+      val expectedStatus = AwrsStatus.Revoked
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
+
+    "return any other etmp status as a 'NotFound' status" in {
+      val etmpStatus = "rubbish"
+      val expectedStatus = AwrsStatus.NotFound(etmpStatus)
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
   }
 
   implicit class JsonStringUtil(jsonString: String) {
@@ -98,6 +130,9 @@ class ModelReaderTest extends AwrsUnitTestTraits {
 
     def updateEtmpEndDate(newDate: String): String =
       updateJson(Json.obj("endDate" -> newDate), jsonString)
+
+    def updateEtmpStatus(newStatus: String): String =
+      updateJson(Json.obj("awrsStatus" -> newStatus), jsonString)
 
   }
 
