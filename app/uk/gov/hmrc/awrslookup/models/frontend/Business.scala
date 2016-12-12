@@ -19,7 +19,6 @@ package uk.gov.hmrc.awrslookup.models.frontend
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models._
 import etmp.formatters._
-import utils.ModelHelper._
 
 case class Business(awrsRef: String,
                     registrationDate: Option[String] = None,
@@ -37,10 +36,11 @@ object Business {
         startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
         endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
         wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
+        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader)
       } yield {
         Business(awrsRef = awrsRegistrationNumber,
           registrationDate = startDate,
-          status = getStatus(endDate),
+          status = awrsStatus,
           info = wholesaler,
           registrationEndDate = endDate)
       }

@@ -18,7 +18,6 @@ package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json.{JsResult, JsValue, Json, Reads}
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
-import uk.gov.hmrc.awrslookup.models.utils.ModelHelper.getStatus
 
 case class Group(awrsRef: String,
                  registrationDate: Option[String] = None,
@@ -37,12 +36,13 @@ object Group {
         startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
         endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
         wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
+        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader)
         groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
       } yield {
         groupMembers match {
           case Some(grpMembers) => Some(Group(awrsRef = awrsRegistrationNumber,
             registrationDate = startDate,
-            status = getStatus(endDate),
+            status = awrsStatus,
             info = wholesaler,
             members = grpMembers,
             registrationEndDate = endDate))
