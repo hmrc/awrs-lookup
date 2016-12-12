@@ -33,12 +33,28 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
 
   val lookupService: EtmpLookupService = EtmpLookupService
 
-  def lookup(awrsRef: String): Action[AnyContent] = Action.async {
+  def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
-      lookupService.lookup(awrsRef).map {
+      lookupService.lookupByUrn(awrsRef).map {
         lookupResponse =>
           lookupResponse.status match {
-            case OK => val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpReader(environment = environment))
+            case OK => val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpByUrnReader(environment = environment))
+              Ok(Json.toJson(convertedJson))
+            case NOT_FOUND => NotFound(referenceNotFoundString)
+            case BAD_REQUEST => BadRequest(lookupResponse.body)
+            case INTERNAL_SERVER_ERROR => InternalServerError(lookupResponse.body)
+            case SERVICE_UNAVAILABLE => ServiceUnavailable(lookupResponse.body)
+            case _ => InternalServerError(lookupResponse.body)
+          }
+      }
+  }
+
+  def lookupByName(queryString: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      lookupService.lookupByName(queryString).map {
+        lookupResponse =>
+          lookupResponse.status match {
+            case OK => val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpByNameReader(environment = environment))
               Ok(Json.toJson(convertedJson))
             case NOT_FOUND => NotFound(referenceNotFoundString)
             case BAD_REQUEST => BadRequest(lookupResponse.body)

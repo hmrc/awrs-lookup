@@ -29,27 +29,5 @@ case class Group(awrsRef: String,
 
 object Group {
 
-  def etmpReader(implicit environment: play.api.Environment): Reads[Option[Group]] = new Reads[Option[Group]] {
-    def reads(js: JsValue): JsResult[Option[Group]] =
-      for {
-        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
-        startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
-        endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
-        wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
-        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader)
-        groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
-      } yield {
-        groupMembers match {
-          case Some(grpMembers) => Some(Group(awrsRef = awrsRegistrationNumber,
-            registrationDate = startDate,
-            status = awrsStatus,
-            info = wholesaler,
-            members = grpMembers,
-            registrationEndDate = endDate))
-          case _ => None
-        }
-      }
-  }
-
   implicit val frontEndFormatter = Json.format[Group]
 }

@@ -27,7 +27,8 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads {
 
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
-  val lookupURI = "/lookup/id/"
+  val lookupByUrnURI = "/lookup/id/"
+  val lookupByNameURI = "/lookup?name="
 
   val urlHeaderEnvironment: String
   val urlHeaderAuthorization: String
@@ -41,8 +42,12 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads {
     headerCarrier.withExtraHeaders("Environment" -> urlHeaderEnvironment).copy(authorization = Some(Authorization(urlHeaderAuthorization)))
   }
 
-  def lookup(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$lookupURI$awrsRef""")
+  def lookupByUrn(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cGET( s"""$serviceURL$baseURI$lookupByUrnURI$awrsRef""")
+  }
+
+  def lookupByName(queryString: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cGET( s"""$serviceURL$baseURI$lookupByNameURI$queryString""")
   }
 
 }

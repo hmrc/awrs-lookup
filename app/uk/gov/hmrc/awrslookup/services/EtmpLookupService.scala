@@ -29,8 +29,16 @@ object EtmpLookupService extends EtmpLookupService {
 trait EtmpLookupService {
   val etmpConnector: EtmpConnector
 
-  def lookup(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
-    etmpConnector.lookup(awrsRefNo) map {
+  def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+    etmpConnector.lookupByUrn(awrsRefNo) map {
+      response =>
+        response.status match {
+          case _ => response
+        }
+    }
+
+  def lookupByName(queryString: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+    etmpConnector.lookupByName(queryString) map {
       response =>
         response.status match {
           case _ => response

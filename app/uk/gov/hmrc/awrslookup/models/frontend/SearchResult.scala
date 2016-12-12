@@ -22,17 +22,21 @@ case class SearchResult(results: List[AwrsEntry])
 
 object SearchResult {
 
-  def etmpReader(implicit environment: play.api.Environment): Reads[SearchResult] = new Reads[SearchResult] {
+  def etmpByUrnReader(implicit environment: play.api.Environment): Reads[SearchResult] = new Reads[SearchResult] {
     def reads(js: JsValue): JsResult[SearchResult] =
       for {
-        business <- (js).validate[Business](Business.etmpReader)
-        group <- (js).validate[Option[Group]](Group.etmpReader)
+        result <- js.validate[AwrsEntry](AwrsEntry.etmpReader)
       } yield {
-        val result = group match {
-          case Some(group) => group
-          case _ => business
-        }
         SearchResult(results = List(result))
+      }
+  }
+
+  def etmpByNameReader(implicit environment: play.api.Environment): Reads[SearchResult] = new Reads[SearchResult] {
+    def reads(js: JsValue): JsResult[SearchResult] =
+      for {
+        result <- (js \ "registrations").validate[List[AwrsEntry]](Reads.list(AwrsEntry.etmpReader))
+      } yield {
+        SearchResult(results = result)
       }
   }
 
