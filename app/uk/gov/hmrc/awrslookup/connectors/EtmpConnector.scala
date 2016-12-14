@@ -30,7 +30,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads {
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
   val lookupByUrnURI = "/lookup/id/"
-  val lookupByNameURI = "/lookup?name=" //TODO verify if this will be the actual url
+  val lookupByNameURI = "/lookup/name/"
 
   val urlHeaderEnvironment: String
   val urlHeaderAuthorization: String
