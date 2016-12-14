@@ -60,5 +60,12 @@ class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with Mockito
       val result = TestEtmpLookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
     }
+
+    "successfully lookup an entry when passed a valid business name" in {
+      val businessName = testBusinessName
+      when(mockEtmpConnector.lookupByName(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
+      val result = TestEtmpLookupService.lookupByName(businessName)
+      await(result).status shouldBe OK
+    }
   }
 }
