@@ -71,6 +71,15 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
       await(result).json shouldBe lookupSuccess
     }
 
+    "lookup an application with a valid business name " in {
+      val lookupSuccess = AwrsTestJson.businessJson
+      val businessName = testBusinessName
+      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
+      val result = TestEtmpConnector.lookupByName(businessName)
+      await(result).json shouldBe lookupSuccess
+    }
+
   }
 
 }
