@@ -23,9 +23,11 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.frontend._
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
+import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class LookupController @Inject()(val environment: Environment) extends BaseController {
 
@@ -35,35 +37,27 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
-      lookupService.lookupByUrn(awrsRef).map {
-        lookupResponse =>
-          lookupResponse.status match {
-            case OK => val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpByUrnReader(environment = environment))
-              Ok(Json.toJson(convertedJson))
-            case NOT_FOUND => NotFound(referenceNotFoundString)
-            case BAD_REQUEST => BadRequest(lookupResponse.body)
-            case INTERNAL_SERVER_ERROR => InternalServerError(lookupResponse.body)
-            case SERVICE_UNAVAILABLE => ServiceUnavailable(lookupResponse.body)
-            case _ => InternalServerError(lookupResponse.body)
-          }
-      }
+      processResponse(lookupService.lookupByUrn(awrsRef))(SearchResult.etmpByUrnReader(environment = environment))
   }
 
   def lookupByName(queryString: String): Action[AnyContent] = Action.async {
     implicit request =>
-      lookupService.lookupByName(queryString).map {
-        lookupResponse =>
-          lookupResponse.status match {
-            case OK =>
-              val convertedJson = lookupResponse.json.as[SearchResult](SearchResult.etmpByNameReader(environment = environment))
-              Ok(Json.toJson(convertedJson))
-            case NOT_FOUND => NotFound(referenceNotFoundString)
-            case BAD_REQUEST => BadRequest(lookupResponse.body)
-            case INTERNAL_SERVER_ERROR => InternalServerError(lookupResponse.body)
-            case SERVICE_UNAVAILABLE => ServiceUnavailable(lookupResponse.body)
-            case _ => InternalServerError(lookupResponse.body)
-          }
-      }
+      processResponse(lookupService.lookupByName(queryString))(SearchResult.etmpByNameReader(environment = environment))
+  }
+
+  private def processResponse(response: Future[HttpResponse])(implicit fjs : play.api.libs.json.Reads[SearchResult]) = {
+    response.map {
+      lookupResponse =>
+        lookupResponse.status match {
+          case OK => val convertedJson = lookupResponse.json.as[SearchResult]
+            Ok(Json.toJson(convertedJson))
+          case NOT_FOUND => NotFound(referenceNotFoundString)
+          case BAD_REQUEST => BadRequest(lookupResponse.body)
+          case INTERNAL_SERVER_ERROR => InternalServerError(lookupResponse.body)
+          case SERVICE_UNAVAILABLE => ServiceUnavailable(lookupResponse.body)
+          case _ => InternalServerError(lookupResponse.body)
+        }
+    }
   }
 
 }
