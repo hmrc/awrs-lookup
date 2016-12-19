@@ -77,9 +77,9 @@ object AwrsStatus {
         awrsStatus <- js.validate[String]
       } yield {
         awrsStatus.toLowerCase match {
-          case "active" => Approved
-          case "deregistered" => DeRegistered
-          case "revoked" => Revoked
+          case "approved" | "approved with conditions" => Approved
+          case "de-registered" => DeRegistered
+          case "revoked" | "revoked under review / appeal" => Revoked
           case _ => NotFound(awrsStatus)
         }
       }
