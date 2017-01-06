@@ -5,7 +5,7 @@
       "awrsRegistrationNumber": "XXAW00000000001",
       "startDate": "2001-01-01",
       "endDate": "2001-01-01",
-      "awrsStatus": "active",
+      "awrsStatus": "approved",
       "wholesaler": {
         "companyName": "abcd",
         "tradingName": "abcdefghijklmnopqrs",
@@ -39,7 +39,7 @@
       "awrsRegistrationNumber": "XXAW00000000002",
       "startDate": "2001-01-01",
       "endDate": "2001-01-01",
-      "awrsStatus": "active",
+      "awrsStatus": "approved",
       "wholesaler": {
         "companyName": "abcd",
         "tradingName": "abcdefghijklmnopqrs",
