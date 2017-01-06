@@ -76,10 +76,11 @@ object AwrsStatus {
       for {
         awrsStatus <- js.validate[String]
       } yield {
-        awrsStatus.toLowerCase match {
-          case "approved" | "approved with conditions" => Approved
-          case "de-registered" => DeRegistered
-          case "revoked" | "revoked under review / appeal" => Revoked
+        // remove case sensitivity, spaces and dashes as the schema has changed a few times and caused issues
+        awrsStatus.toLowerCase.replaceAll(" ", "").replaceAll("-", "") match {
+          case "approved" | "approvedwithconditions" => Approved
+          case "deregistered" => DeRegistered
+          case "revoked" | "revokedunderreview/appeal" => Revoked
           case _ => NotFound(awrsStatus)
         }
       }
