@@ -20,7 +20,6 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.libs.json.{JsResult, JsSuccess, JsValue, Reads}
 
-
 object EtmpDateReader extends Reads[String] {
 
   val etmpDatePattern = "yyyy-MM-dd"
@@ -29,16 +28,9 @@ object EtmpDateReader extends Reads[String] {
 
   val parseDate = (str: JsResult[String]) => DateTime.parse(str.get, DateTimeFormat.forPattern(etmpDatePattern))
 
-  val earliestPossibleDate = DateTime.parse("2017-04-01", DateTimeFormat.forPattern(etmpDatePattern))
-
   override def reads(json: JsValue): JsResult[String] = {
     val str = json.validate[String]
-    val dateTime = parseDate(str)
-    val transformedDate = dateTime.isBefore(earliestPossibleDate) match {
-      case true => earliestPossibleDate
-      case false => dateTime
-    }
-    JsSuccess(transformedDate.toString(frontEndDatePattern))
+    JsSuccess(parseDate(str).toString(frontEndDatePattern))
   }
 
 }

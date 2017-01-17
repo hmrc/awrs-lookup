@@ -16,7 +16,9 @@
 
 package models
 
+import org.joda.time.DateTime
 import play.api.libs.json.Json
+import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 import uk.gov.hmrc.awrslookup.models.frontend.{AwrsStatus, Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 import utils.TestUtil._
@@ -69,15 +71,6 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.registrationEndDate.get shouldBe expected
     }
 
-    "update Dates if they are before 1st April 2017" in {
-      val date = "2017-3-31"
-      val expected = "01 April 2017"
-      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
-      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
-      businessObject.results.head.get.registrationDate.get shouldBe expected
-      businessObject.results.head.get.registrationEndDate.get shouldBe expected
-    }
-
     "do not update Dates if they are after 1st April 2017" in {
       val date = "2017-4-2"
       val expected = "02 April 2017"
@@ -103,10 +96,20 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.status.get shouldBe expectedStatus
     }
 
-    "correctly convert the 'De-registered' etmp status to the frontend 'DeRegistered' status" in {
+    "correctly convert the 'De-registered' etmp status to the frontend 'DeRegistered' status when the dereg date has been reached" in {
       val etmpStatus = "De-registered"
       val expectedStatus = AwrsStatus.DeRegistered
-      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val pastDate = DateTime.now().minusDays(1).toString(EtmpDateReader.etmpDatePattern)
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus).updateEtmpEndDate(pastDate)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
+
+    "correctly convert the 'De-registered' etmp status to the frontend 'Approved' status when the dereg date has not been reached" in {
+      val etmpStatus = "De-registered"
+      val expectedStatus = AwrsStatus.Approved
+      val futureDate = DateTime.now().plusDays(1).toString(EtmpDateReader.etmpDatePattern)
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus).updateEtmpEndDate(futureDate)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
       businessObject.results.head.get.status.get shouldBe expectedStatus
     }
