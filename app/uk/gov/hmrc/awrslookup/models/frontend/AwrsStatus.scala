@@ -16,7 +16,10 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import play.api.libs.json._
+import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 
 sealed trait AwrsStatus {
   def code: String
@@ -71,7 +74,14 @@ object AwrsStatus {
     val name = "Not Found"
   }
 
-  def etmpReader(implicit environment: play.api.Environment): Reads[AwrsStatus] = new Reads[AwrsStatus] {
+  def etmpReader(endDate: Option[String])(implicit environment: play.api.Environment): Reads[AwrsStatus] = new Reads[AwrsStatus] {
+
+    def isDeregDateInTheFuture(endDate: Option[String]) =
+      endDate match {
+        case Some(date) => DateTime.parse(date, DateTimeFormat.forPattern(EtmpDateReader.frontEndDatePattern)).isAfter(DateTime.now())
+        case _ => false // TODO should never happen but should we throw an exception instead?
+      }
+
     def reads(js: JsValue): JsResult[AwrsStatus] =
       for {
         awrsStatus <- js.validate[String]
@@ -79,7 +89,10 @@ object AwrsStatus {
         // remove case sensitivity, spaces and dashes as the schema has changed a few times and caused issues
         awrsStatus.toLowerCase.replaceAll(" ", "").replaceAll("-", "") match {
           case "approved" | "approvedwithconditions" => Approved
-          case "deregistered" => DeRegistered
+          case "deregistered" => isDeregDateInTheFuture(endDate) match {
+            case true => Approved
+            case _ => DeRegistered
+          }
           case "revoked" | "revokedunderreview/appeal" => Revoked
           case _ => NotFound(awrsStatus)
         }

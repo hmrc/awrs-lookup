@@ -59,7 +59,7 @@ object AwrsEntry {
         startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
         endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
         wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
-        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader)
+        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader(endDate))
         groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
       } yield {
         groupMembers match {
