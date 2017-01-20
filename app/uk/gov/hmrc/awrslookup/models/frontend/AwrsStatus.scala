@@ -93,7 +93,10 @@ object AwrsStatus {
             case true => Approved
             case _ => DeRegistered
           }
-          case "revoked" | "revokedunderreview/appeal" => Revoked
+          case "revoked" | "revokedunderreview/appeal" => isDeregDateInTheFuture(endDate) match {
+            case true => Approved
+            case _ => Revoked
+          }
           case _ => NotFound(awrsStatus)
         }
       }
