@@ -18,6 +18,8 @@ package uk.gov.hmrc.awrslookup.connectors
 
 import play.api.Logger
 import uk.gov.hmrc.awrslookup.WSHttp
+import uk.gov.hmrc.awrslookup.audit.Auditable
+import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.logging.Authorization
@@ -25,7 +27,7 @@ import uk.gov.hmrc.play.http.logging.Authorization
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait EtmpConnector extends ServicesConfig with RawResponseReads {
+trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
 
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
