@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
+import java.net.{URLEncoder, URLDecoder}
+
 import play.api.Logger
 import uk.gov.hmrc.awrslookup.WSHttp
 import uk.gov.hmrc.awrslookup.audit.Auditable
@@ -39,7 +41,11 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
 
   val http: HttpGet = WSHttp
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
+  private def encode(url: String) = {
+    URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20")
+  }
+
+  def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
     val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
     future.onFailure {
       case e: Exception => Logger.debug("get request failed: url=$url\ne=$e\n")
@@ -56,7 +62,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   }
 
   def lookupByName(queryString: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$lookupByNameURI$queryString""")
+    cGET( s"""$serviceURL$baseURI$lookupByNameURI${encode(queryString)}""")
   }
 
 }
