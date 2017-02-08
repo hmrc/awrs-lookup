@@ -45,7 +45,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
     URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20")
   }
 
-  def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
+  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
     val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
     future.onFailure {
       case e: Exception => Logger.debug("get request failed: url=$url\ne=$e\n")
