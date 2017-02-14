@@ -20,7 +20,11 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.libs.json.{JsResult, JsSuccess, JsValue, Reads}
 
-object EtmpDateReader extends Reads[String] {
+object EtmpDateReader extends EtmpDateReader
+
+trait EtmpDateReader extends Reads[String] {
+
+  val earliestDateString = "2017-04-01"
 
   val etmpDatePattern = "yyyy-MM-dd"
 
@@ -28,9 +32,18 @@ object EtmpDateReader extends Reads[String] {
 
   val parseDate = (str: JsResult[String]) => DateTime.parse(str.get, DateTimeFormat.forPattern(etmpDatePattern))
 
+  val earliestPossibleDate = DateTime.parse(earliestDateString, DateTimeFormat.forPattern(etmpDatePattern))
+
   override def reads(json: JsValue): JsResult[String] = {
     val str = json.validate[String]
-    JsSuccess(parseDate(str).toString(frontEndDatePattern))
+    val dateTime = parseDate(str)
+    println("STR::::"+dateTime)
+    println("SearliestPossibleDateTR::::"+earliestPossibleDate)
+    val transformedDate = dateTime.isBefore(earliestPossibleDate) match {
+      case true => println("IN HERE!!!");earliestPossibleDate
+      case false => println("IN TTTHERE!!!");dateTime
+    }
+    JsSuccess(transformedDate.toString(frontEndDatePattern))
   }
 
 }
