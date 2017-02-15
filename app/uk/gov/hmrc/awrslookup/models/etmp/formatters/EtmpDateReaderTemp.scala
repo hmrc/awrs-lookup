@@ -20,9 +20,11 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.libs.json.{JsResult, JsSuccess, JsValue, Reads}
 
-object EtmpDateReader extends EtmpDateReader
+// TODO remove this object/trait after 1st April
 
-trait EtmpDateReader extends Reads[String] {
+object EtmpDateReaderTemp extends EtmpDateReaderTemp
+
+trait EtmpDateReaderTemp extends Reads[String] {
 
   val earliestDateString = "2017-04-01"
 
@@ -37,11 +39,7 @@ trait EtmpDateReader extends Reads[String] {
   override def reads(json: JsValue): JsResult[String] = {
     val str = json.validate[String]
     val dateTime = parseDate(str)
-    val transformedDate = dateTime.isBefore(earliestPossibleDate) match {
-      case true => earliestPossibleDate
-      case false => dateTime
-    }
-    JsSuccess(transformedDate.toString(frontEndDatePattern))
+    JsSuccess(dateTime.toString(frontEndDatePattern))
   }
 
 }

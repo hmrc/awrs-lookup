@@ -96,15 +96,14 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.status.get shouldBe expectedStatus
     }
 
-// TODO un-comment these tests after the 01-04-2017
-//    "correctly convert the 'De-registered' etmp status to the frontend 'DeRegistered' status when the dereg date has been reached" in {
-//      val etmpStatus = "De-registered"
-//      val expectedStatus = AwrsStatus.DeRegistered
-//      val pastDate = DateTime.now().minusDays(1).toString(EtmpDateReader.etmpDatePattern)
-//      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus).updateEtmpEndDate(pastDate)
-//      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
-//      businessObject.results.head.get.status.get shouldBe expectedStatus
-//    }
+    "correctly convert the 'De-registered' etmp status to the frontend 'DeRegistered' status when the dereg date has been reached" in {
+      val etmpStatus = "De-registered"
+      val expectedStatus = AwrsStatus.DeRegistered
+      val pastDate = DateTime.now().minusDays(1).toString(EtmpDateReader.etmpDatePattern)
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus).updateEtmpEndDate(pastDate)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
 
     "correctly convert the 'De-registered' etmp status to the frontend 'Approved' status when the dereg date has not been reached" in {
       val etmpStatus = "De-registered"
@@ -114,22 +113,22 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
       businessObject.results.head.get.status.get shouldBe expectedStatus
     }
-// TODO un-comment these tests after the 01-04-2017
-//    "correctly convert the 'Revoked' etmp status to the frontend 'Revoked' status" in {
-//      val etmpStatus = "Revoked"
-//      val expectedStatus = AwrsStatus.Revoked
-//      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
-//      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
-//      businessObject.results.head.get.status.get shouldBe expectedStatus
-//    }
-//
-//    "correctly convert the 'Revoked under Review / Appeal' etmp status to the frontend 'Revoked' status" in {
-//      val etmpStatus = "Revoked under Review / Appeal"
-//      val expectedStatus = AwrsStatus.Revoked
-//      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
-//      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
-//      businessObject.results.head.get.status.get shouldBe expectedStatus
-//    }
+
+    "correctly convert the 'Revoked' etmp status to the frontend 'Revoked' status" in {
+      val etmpStatus = "Revoked"
+      val expectedStatus = AwrsStatus.Revoked
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
+
+    "correctly convert the 'Revoked under Review / Appeal' etmp status to the frontend 'Revoked' status" in {
+      val etmpStatus = "Revoked under Review / Appeal"
+      val expectedStatus = AwrsStatus.Revoked
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.status.get shouldBe expectedStatus
+    }
 
     "return any other etmp status as a 'NotFound' status" in {
       val etmpStatus = "rubbish"
