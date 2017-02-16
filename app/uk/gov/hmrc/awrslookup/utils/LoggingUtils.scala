@@ -28,8 +28,8 @@ trait LoggingUtils extends Auditable {
 
   final val auditLookupTxName: String = "AwrsLookup"
 
-  final val eventTypeSuccess: String = "AwrsSuccess"
-  final val eventTypeFailure: String = "AwrsFailure"
+  final val eventTypeSuccess: String = "AwrsLookupSuccess"
+  final val eventTypeFailure: String = "AwrsLookupFailure"
   final val eventTypeBadRequest: String = "BadRequest"
   final val eventTypeNotFound: String = "NotFound"
   final val eventTypeInternalServerError: String = "InternalServerError"

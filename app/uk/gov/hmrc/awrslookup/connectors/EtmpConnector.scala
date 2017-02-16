@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
+import java.net.{URLEncoder, URLDecoder}
+
 import play.api.Logger
 import uk.gov.hmrc.awrslookup.WSHttp
 import uk.gov.hmrc.awrslookup.audit.Auditable
@@ -27,7 +29,7 @@ import uk.gov.hmrc.play.http.logging.Authorization
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
+trait EtmpConnector extends ServicesConfig with RawResponseReads with Auditable {
 
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
@@ -38,6 +40,10 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   val urlHeaderAuthorization: String
 
   val http: HttpGet = WSHttp
+
+  private def encode(url: String) = {
+    URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20")
+  }
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
     val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
@@ -56,7 +62,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   }
 
   def lookupByName(queryString: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$lookupByNameURI$queryString""")
+    cGET( s"""$serviceURL$baseURI$lookupByNameURI${encode(queryString)}""")
   }
 
 }
