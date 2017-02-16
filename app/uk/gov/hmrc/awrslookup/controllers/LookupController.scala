@@ -25,11 +25,13 @@ import uk.gov.hmrc.awrslookup.models.frontend._
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.awrslookup.utils.LoggingUtils
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class LookupController @Inject()(val environment: Environment) extends BaseController {
+class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils{
 
   val referenceNotFoundString = "AWRS reference not found"
 
@@ -37,21 +39,25 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
-      processResponse(lookupService.lookupByUrn(awrsRef))(SearchResult.etmpByUrnReader(environment = environment))
+
+      processResponse(lookupService.lookupByUrn(awrsRef))(SearchResult.etmpByUrnReader(environment = environment), hc)
   }
 
   def lookupByName(queryString: String): Action[AnyContent] = Action.async {
     implicit request =>
-      processResponse(lookupService.lookupByName(queryString))(SearchResult.etmpByNameReader(environment = environment))
+      processResponse(lookupService.lookupByName(queryString))(SearchResult.etmpByNameReader(environment = environment), hc)
   }
 
-  private def processResponse(response: Future[HttpResponse])(implicit fjs : play.api.libs.json.Reads[SearchResult]) = {
+  def processResponse(response: Future[HttpResponse])(implicit fjs : play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier) = {
     response.map {
       lookupResponse =>
         lookupResponse.status match {
           case OK => val convertedJson = lookupResponse.json.as[SearchResult]
+            audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
             Ok(Json.toJson(convertedJson))
-          case NOT_FOUND => NotFound(referenceNotFoundString)
+          case NOT_FOUND =>
+            audit(auditLookupTxName, Map("Search Result" -> "not found"), eventTypeNotFound)
+            NotFound(referenceNotFoundString)
           case BAD_REQUEST => BadRequest(lookupResponse.body)
           case INTERNAL_SERVER_ERROR => InternalServerError(lookupResponse.body)
           case SERVICE_UNAVAILABLE => ServiceUnavailable(lookupResponse.body)
