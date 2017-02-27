@@ -29,7 +29,7 @@ import uk.gov.hmrc.play.http.logging.Authorization
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait EtmpConnector extends ServicesConfig with RawResponseReads with Auditable {
+trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
 
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
