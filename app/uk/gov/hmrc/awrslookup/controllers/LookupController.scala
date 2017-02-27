@@ -18,10 +18,10 @@ package uk.gov.hmrc.awrslookup.controllers
 
 import javax.inject.Inject
 
-import metrics.AwrsLookupMetrics
 import play.api.Environment
 import play.api.libs.json.Json
 import play.api.mvc._
+import metrics.AwrsLookupMetrics
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 import uk.gov.hmrc.awrslookup.models.frontend._
@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils{
+class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils {
 
   val referenceNotFoundString = "AWRS reference not found"
 
@@ -42,10 +42,10 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       val timer = metrics.startTimer(ApiType.LookupByURN)
-       lookupService.lookupByUrn(awrsRef) map {
+      lookupService.lookupByUrn(awrsRef) map {
         response => timer.stop()
-          processResponse(response,ApiType.LookupByName)(SearchResult.etmpByUrnReader(environment = environment), hc)
-       }
+          processResponse(response, ApiType.LookupByName)(SearchResult.etmpByUrnReader(environment = environment), hc)
+      }
   }
 
   def lookupByName(queryString: String): Action[AnyContent] = Action.async {
@@ -53,7 +53,7 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
       val timer = metrics.startTimer(ApiType.LookupByURN)
       lookupService.lookupByName(queryString) map {
         response => timer.stop()
-          processResponse(response,ApiType.LookupByName)(SearchResult.etmpByNameReader(environment = environment), hc)
+          processResponse(response, ApiType.LookupByName)(SearchResult.etmpByNameReader(environment = environment), hc)
       }
   }
 
@@ -84,6 +84,7 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
             audit(auditLookupTxName, Map("Search Result" -> "OTHER_ERROR"), eventTypeNotFound)
             InternalServerError(lookupResponse.body)
         }
-  }
-
+    }
 }
+
+

@@ -38,13 +38,13 @@ object AwrsLookupMetrics extends AwrsLookupMetrics {
    )
 
   val successCounters = Map(
-    ApiType.LookupByURN -> metrics.defaultRegistry.timer("etmp-lookup-by-urn-success"),
-    ApiType.LookupByName -> metrics.defaultRegistry.timer("etmp-lookup-by-name-success")
+    ApiType.LookupByURN -> metrics.defaultRegistry.counter("etmp-lookup-by-urn-success"),
+    ApiType.LookupByName -> metrics.defaultRegistry.counter("etmp-lookup-by-name-success")
   )
 
   val failedCounters = Map(
-    ApiType.LookupByURN -> metrics.defaultRegistry.timer("etmp-lookup-by-urn-failed"),
-    ApiType.LookupByName -> metrics.defaultRegistry.timer("etmp-lookup-by-name-failed")
+    ApiType.LookupByURN -> metrics.defaultRegistry.counter("etmp-lookup-by-urn-failed"),
+    ApiType.LookupByName -> metrics.defaultRegistry.counter("etmp-lookup-by-name-failed")
   )
 
   override def startTimer(api: ApiType): Context = timers(api).time()
