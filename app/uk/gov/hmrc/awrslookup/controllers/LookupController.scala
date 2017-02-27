@@ -18,46 +18,72 @@ package uk.gov.hmrc.awrslookup.controllers
 
 import javax.inject.Inject
 
+import metrics.AwrsLookupMetrics
 import play.api.Environment
 import play.api.libs.json.Json
 import play.api.mvc._
+import uk.gov.hmrc.awrslookup.models.ApiType
+import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 import uk.gov.hmrc.awrslookup.models.frontend._
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
-import uk.gov.hmrc.play.http.HttpResponse
+import uk.gov.hmrc.awrslookup.utils.LoggingUtils
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
-class LookupController @Inject()(val environment: Environment) extends BaseController {
+class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils{
 
   val referenceNotFoundString = "AWRS reference not found"
 
   val lookupService: EtmpLookupService = EtmpLookupService
+  val metrics: AwrsLookupMetrics = AwrsLookupMetrics
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
-      processResponse(lookupService.lookupByUrn(awrsRef))(SearchResult.etmpByUrnReader(environment = environment))
+      val timer = metrics.startTimer(ApiType.LookupByURN)
+       lookupService.lookupByUrn(awrsRef) map {
+        response => timer.stop()
+          processResponse(response,ApiType.LookupByName)(SearchResult.etmpByUrnReader(environment = environment), hc)
+       }
   }
 
   def lookupByName(queryString: String): Action[AnyContent] = Action.async {
     implicit request =>
-      processResponse(lookupService.lookupByName(queryString))(SearchResult.etmpByNameReader(environment = environment))
+      val timer = metrics.startTimer(ApiType.LookupByURN)
+      lookupService.lookupByName(queryString) map {
+        response => timer.stop()
+          processResponse(response,ApiType.LookupByName)(SearchResult.etmpByNameReader(environment = environment), hc)
+      }
   }
 
-  private def processResponse(response: Future[HttpResponse])(implicit fjs : play.api.libs.json.Reads[SearchResult]) = {
-    response.map {
-      lookupResponse =>
+  def processResponse(lookupResponse: HttpResponse, apiType : ApiType)(implicit fjs : play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier) = {
         lookupResponse.status match {
           case OK => val convertedJson = lookupResponse.json.as[SearchResult]
+            metrics.incrementSuccessCounter(apiType)
+            audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
             Ok(Json.toJson(convertedJson))
-          case NOT_FOUND => NotFound(referenceNotFoundString)
-          case BAD_REQUEST => BadRequest(lookupResponse.body)
-          case INTERNAL_SERVER_ERROR => InternalServerError(lookupResponse.body)
-          case SERVICE_UNAVAILABLE => ServiceUnavailable(lookupResponse.body)
-          case _ => InternalServerError(lookupResponse.body)
+          case NOT_FOUND =>
+            metrics.incrementFailedCounter(apiType)
+            audit(auditLookupTxName, Map("Search Result" -> "NOT_FOUND"), eventTypeNotFound)
+            NotFound(referenceNotFoundString)
+          case BAD_REQUEST =>
+            metrics.incrementFailedCounter(apiType)
+            audit(auditLookupTxName, Map("Search Result" -> "BAD_REQUEST"), eventTypeNotFound)
+            BadRequest(lookupResponse.body)
+          case INTERNAL_SERVER_ERROR =>
+            metrics.incrementFailedCounter(apiType)
+            audit(auditLookupTxName, Map("Search Result" -> "INTERNAL_SERVER_ERROR"), eventTypeNotFound)
+            InternalServerError(lookupResponse.body)
+          case SERVICE_UNAVAILABLE =>
+            metrics.incrementFailedCounter(apiType)
+            audit(auditLookupTxName, Map("Search Result" -> "SERVICE_UNAVAILABLE"), eventTypeNotFound)
+            ServiceUnavailable(lookupResponse.body)
+          case _ =>
+            metrics.incrementFailedCounter(apiType)
+            audit(auditLookupTxName, Map("Search Result" -> "OTHER_ERROR"), eventTypeNotFound)
+            InternalServerError(lookupResponse.body)
         }
-    }
   }
 
 }
