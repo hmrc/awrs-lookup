@@ -52,7 +52,7 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
 
   def lookupByName(queryString: String): Action[AnyContent] = Action.async {
     implicit request =>
-      val timer = metrics.startTimer(ApiType.LookupByURN)
+      val timer = metrics.startTimer(ApiType.LookupByName)
       lookupService.lookupByName(queryString) map {
         response => timer.stop()
           processResponse(response, ApiType.LookupByName)(SearchResult.etmpByNameReader(environment = environment), hc)
@@ -69,18 +69,20 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
               (status,endDate) match {
                 case (s: JsSuccess[String],e: JsSuccess[DateTime]) => {
                   if ( status.get != "approved" && endDate.get.isBefore(earliestDate)) {
-                    NotFound
+                    metrics.incrementSuccessCounter(apiType)
+                    audit(auditLookupTxName, Map("Search Result" -> "success - capped (Prior 01/04/2017)"), eventTypeSuccess)
+                    NotFound(referenceNotFoundString)
                   } else {
-                    val convertedJson = lookupResponse.json.as[SearchResult]
                     metrics.incrementSuccessCounter(apiType)
                     audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
+                    val convertedJson = lookupResponse.json.as[SearchResult]
                     Ok(Json.toJson(convertedJson))
                   }
                 }
                 case _ => {
-                  val convertedJson = lookupResponse.json.as[SearchResult]
                   metrics.incrementSuccessCounter(apiType)
                   audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
+                  val convertedJson = lookupResponse.json.as[SearchResult]
                   Ok(Json.toJson(convertedJson))
                 }
               }
