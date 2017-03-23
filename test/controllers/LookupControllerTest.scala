@@ -100,6 +100,12 @@ class LookupControllerTest extends AwrsUnitTestTraits {
       status(result) shouldBe NOT_FOUND
     }
 
+    "return a NOT FOUND when ETMP returns a revoked business with date of 01 April 2017" in {
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(revokedBusinessFirstApril))))
+      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+      status(result) shouldBe NOT_FOUND
+    }
+
 
 
     /*
