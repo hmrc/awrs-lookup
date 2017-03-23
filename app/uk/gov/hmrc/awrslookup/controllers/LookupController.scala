@@ -19,7 +19,7 @@ package uk.gov.hmrc.awrslookup.controllers
 import javax.inject.Inject
 
 import play.api.Environment
-import play.api.libs.json.Json
+import play.api.libs.json.{JsDefined, JsError, JsSuccess, Json}
 import play.api.mvc._
 import metrics.AwrsLookupMetrics
 import uk.gov.hmrc.awrslookup.models.ApiType
@@ -29,6 +29,8 @@ import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -44,7 +46,7 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
       val timer = metrics.startTimer(ApiType.LookupByURN)
       lookupService.lookupByUrn(awrsRef) map {
         response => timer.stop()
-          processResponse(response, ApiType.LookupByName)(SearchResult.etmpByUrnReader(environment = environment), hc)
+          processResponse(response, ApiType.LookupByURN)(SearchResult.etmpByUrnReader(environment = environment), hc)
       }
   }
 
@@ -59,10 +61,30 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
 
   def processResponse(lookupResponse: HttpResponse, apiType : ApiType)(implicit fjs : play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier) = {
         lookupResponse.status match {
-          case OK => val convertedJson = lookupResponse.json.as[SearchResult]
-            metrics.incrementSuccessCounter(apiType)
-            audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
-            Ok(Json.toJson(convertedJson))
+          case OK => {
+              val status = (lookupResponse.json \ "awrsStatus").validate[String]
+              val endDate =  (lookupResponse.json  \ "endDate").validate[DateTime]
+              val earliestDate = DateTime.parse("2017-04-01")
+
+              (status,endDate) match {
+                case (s: JsSuccess[String],e: JsSuccess[DateTime]) => {
+                  if ( status.get != "approved" && endDate.get.isBefore(earliestDate)) {
+                    NotFound
+                  } else {
+                    val convertedJson = lookupResponse.json.as[SearchResult]
+                    metrics.incrementSuccessCounter(apiType)
+                    audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
+                    Ok(Json.toJson(convertedJson))
+                  }
+                }
+                case _ => {
+                  val convertedJson = lookupResponse.json.as[SearchResult]
+                  metrics.incrementSuccessCounter(apiType)
+                  audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
+                  Ok(Json.toJson(convertedJson))
+                }
+              }
+          }
           case NOT_FOUND =>
             metrics.incrementFailedCounter(apiType)
             audit(auditLookupTxName, Map("Search Result" -> "NOT_FOUND"), eventTypeNotFound)

@@ -62,7 +62,7 @@ class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with Mockito
                                   "awrsRegistrationNumber" : "2345678",
                                  "startDate" : "2016-04-01",
                                   "endDate" : "2016-10-17",
-                                  "awrsStatus" : "de-registered",
+                                  "awrsStatus" : "approved",
                                   "processingDate" : "2001-12-31T12:30:59Z",
                                   "wholesaler" : {
                                    "companyName" : "companyName",
