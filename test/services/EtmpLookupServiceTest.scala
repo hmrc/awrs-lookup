@@ -23,12 +23,14 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.test.Helpers._
+import play.libs.Json
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.play.http.logging.SessionId
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestConstants._
+import utils.AwrsTestJson
 
 import scala.concurrent.Future
 
@@ -52,6 +54,33 @@ class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with Mockito
       when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
       val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe OK
+    }
+
+    "succesfully return an entry when passed a valid reference number" in {
+      val awrsRefNo = testRefNo
+      val expectedOutput = """{
+                                  "awrsRegistrationNumber" : "2345678",
+                                 "startDate" : "2016-04-01",
+                                  "endDate" : "2016-10-17",
+                                  "awrsStatus" : "de-registered",
+                                  "processingDate" : "2001-12-31T12:30:59Z",
+                                  "wholesaler" : {
+                                   "companyName" : "companyName",
+                                  "tradingName" : "tradingName",
+                                    "businessAddress" : {
+                                      "addressLine1" : "addressLine1",
+                                      "addressLine2" : "addressLine2",
+                                      "addressLine3" : "addressLine3",
+                                      "addressLine4" : "addressLine4",
+                                      "country" : "GB",
+                                      "postcode" : "TF3 XYZ"
+                                    }
+                                  }
+                                }"""
+      val lookupSuccess = AwrsTestJson.businessJson
+      when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
+      val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
+      Json.parse(await(result).body) shouldBe Json.parse(expectedOutput)
     }
 
     "return Not Found when passed an reference number that does not exist" in {
