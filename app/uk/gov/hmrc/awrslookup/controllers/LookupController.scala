@@ -18,10 +18,11 @@ package uk.gov.hmrc.awrslookup.controllers
 
 import javax.inject.Inject
 
-import play.api.Environment
-import play.api.libs.json.{JsDefined, JsError, JsSuccess, Json}
-import play.api.mvc._
 import metrics.AwrsLookupMetrics
+import org.joda.time.DateTime
+import play.api.Environment
+import play.api.libs.json.{JsSuccess, Json}
+import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 import uk.gov.hmrc.awrslookup.models.frontend._
@@ -29,8 +30,6 @@ import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -45,7 +44,8 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
     implicit request =>
       val timer = metrics.startTimer(ApiType.LookupByURN)
       lookupService.lookupByUrn(awrsRef) map {
-        response => timer.stop()
+        response =>
+          timer.stop()
           processResponse(response, ApiType.LookupByURN)(SearchResult.etmpByUrnReader(environment = environment), hc)
       }
   }
@@ -54,54 +54,55 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
     implicit request =>
       val timer = metrics.startTimer(ApiType.LookupByName)
       lookupService.lookupByName(queryString) map {
-        response => timer.stop()
+        response =>
+          timer.stop()
           processResponse(response, ApiType.LookupByName)(SearchResult.etmpByNameReader(environment = environment), hc)
       }
   }
 
-  def processResponse(lookupResponse: HttpResponse, apiType : ApiType)(implicit fjs : play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier) = {
-        lookupResponse.status match {
-          case OK => {
-              val status = (lookupResponse.json \ "awrsStatus").validate[String]
-              val endDate =  (lookupResponse.json  \ "endDate").validate[DateTime]
-              val earliestDate = DateTime.parse("2017-04-01")
-              (status,endDate) match {
-                case (s: JsSuccess[String],e: JsSuccess[DateTime]) => {
-                  if (status.get.toLowerCase != "approved" && (endDate.get.isBefore(earliestDate) || endDate.get == earliestDate)) {
-                    DoAuditing(apiType,"Search Result","success - capped (Prior 01/04/2017)",eventTypeSuccess,metrics.incrementSuccessCounter)
-                    NotFound(referenceNotFoundString)
-                  } else {
-                    DoAuditing(apiType,"Search Result","success",eventTypeSuccess,metrics.incrementSuccessCounter)
-                    val convertedJson = lookupResponse.json.as[SearchResult]
-                    Ok(Json.toJson(convertedJson))
-                  }
-                }
-                case _ => {
-                  DoAuditing(apiType,"Search Result","success",eventTypeSuccess,metrics.incrementSuccessCounter)
-                  val convertedJson = lookupResponse.json.as[SearchResult]
-                  Ok(Json.toJson(convertedJson))
-                }
-              }
+  def processResponse(lookupResponse: HttpResponse, apiType: ApiType)(implicit fjs: play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier) = {
+    lookupResponse.status match {
+      case OK => {
+        val status = (lookupResponse.json \ "awrsStatus").validate[String]
+        val endDate = (lookupResponse.json \ "endDate").validate[DateTime]
+        val earliestDate = DateTime.parse("2017-04-01")
+        (status, endDate) match {
+          case (s: JsSuccess[String], e: JsSuccess[DateTime]) => {
+            if (status.get.toLowerCase != "approved" && (endDate.get.isBefore(earliestDate) || endDate.get == earliestDate)) {
+              DoAuditing(apiType, "Search Result", "success - capped (Prior 01/04/2017)", eventTypeSuccess, metrics.incrementSuccessCounter)
+              NotFound(referenceNotFoundString)
+            } else {
+              DoAuditing(apiType, "Search Result", "success", eventTypeSuccess, metrics.incrementSuccessCounter)
+              val convertedJson = lookupResponse.json.as[SearchResult]
+              Ok(Json.toJson(convertedJson))
+            }
           }
-          case NOT_FOUND =>
-            DoAuditing(apiType,"Search Result","NOT_FOUND",eventTypeNotFound,metrics.incrementFailedCounter)
-            NotFound(referenceNotFoundString)
-          case BAD_REQUEST =>
-            DoAuditing(apiType,"Search Result","BAD_REQUEST",eventTypeNotFound,metrics.incrementFailedCounter)
-            BadRequest(lookupResponse.body)
-          case INTERNAL_SERVER_ERROR =>
-            DoAuditing(apiType,"Search Result","INTERNAL_SERVER_ERROR",eventTypeNotFound,metrics.incrementFailedCounter)
-            InternalServerError(lookupResponse.body)
-          case SERVICE_UNAVAILABLE =>
-            DoAuditing(apiType,"Search Result","SERVICE_UNAVAILABLE",eventTypeNotFound,metrics.incrementFailedCounter)
-            ServiceUnavailable(lookupResponse.body)
-          case _ =>
-            DoAuditing(apiType,"Search Result","OTHER_ERROR",eventTypeNotFound,metrics.incrementFailedCounter)
-            InternalServerError(lookupResponse.body)
+          case _ => {
+            DoAuditing(apiType, "Search Result", "success", eventTypeSuccess, metrics.incrementSuccessCounter)
+            val convertedJson = lookupResponse.json.as[SearchResult]
+            Ok(Json.toJson(convertedJson))
+          }
         }
+      }
+      case NOT_FOUND =>
+        DoAuditing(apiType, "Search Result", "NOT_FOUND", eventTypeNotFound, metrics.incrementFailedCounter)
+        NotFound(referenceNotFoundString)
+      case BAD_REQUEST =>
+        DoAuditing(apiType, "Search Result", "BAD_REQUEST", eventTypeBadRequest, metrics.incrementFailedCounter)
+        BadRequest(lookupResponse.body)
+      case INTERNAL_SERVER_ERROR =>
+        DoAuditing(apiType, "Search Result", "INTERNAL_SERVER_ERROR", eventTypeInternalServerError, metrics.incrementFailedCounter)
+        InternalServerError(lookupResponse.body)
+      case SERVICE_UNAVAILABLE =>
+        DoAuditing(apiType, "Search Result", "SERVICE_UNAVAILABLE", eventTypeServiceUnavailable, metrics.incrementFailedCounter)
+        ServiceUnavailable(lookupResponse.body)
+      case _ =>
+        DoAuditing(apiType, "Search Result", "OTHER_ERROR", eventTypeGeneric, metrics.incrementFailedCounter)
+        InternalServerError(lookupResponse.body)
     }
+  }
 
-  private def DoAuditing(apiType : ApiType, action: String, message: String, eventType: String, incrementCounter: (ApiType) => Unit) (implicit hc: HeaderCarrier)= {
+  private def DoAuditing(apiType: ApiType, action: String, message: String, eventType: String, incrementCounter: (ApiType) => Unit)(implicit hc: HeaderCarrier) = {
     incrementCounter(apiType)
     audit(auditLookupTxName, Map(action -> message), eventType)
   }

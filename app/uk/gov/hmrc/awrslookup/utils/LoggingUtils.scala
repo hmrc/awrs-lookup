@@ -33,6 +33,7 @@ trait LoggingUtils extends Auditable {
   final val eventTypeBadRequest: String = "BadRequest"
   final val eventTypeNotFound: String = "NotFound"
   final val eventTypeInternalServerError: String = "InternalServerError"
+  final val eventTypeServiceUnavailable: String = "ServiceUnavailable"
   final val eventTypeGeneric: String = "UnexpectedError"
 
   final val splunkString = "SPLUNK AUDIT:\n"
