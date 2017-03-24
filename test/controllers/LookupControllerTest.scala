@@ -80,6 +80,34 @@ class LookupControllerTest extends AwrsUnitTestTraits {
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
+    "return an entry with the correct dates when registration Date is prior to 01 April 2017" in {
+      val expectedOutput = "{\"results\":[{\"class\":\"Business\",\"data\":{\"awrsRef\":\"2345678\",\"registrationDate\":\"01 April 2017\",\"status\":\"04\",\"info\":{\"businessName\":\"companyName\",\"tradingName\":\"tradingName\",\"address\":{\"addressLine1\":\"addressLine1\",\"addressLine2\":\"addressLine2\",\"addressLine3\":\"addressLine3\",\"addressLine4\":\"addressLine4\",\"postcode\":\"TF3 XYZ\"}},\"registrationEndDate\":\"01 April 2017\"}}]}"
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(businessJson))))
+      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedOutput
+    }
+
+    "return a NOT FOUND when ETMP returns a deregistered business with date prior to 01 April 2017" in {
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(deRegisteredBusinessPriorToFirstApril))))
+      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+      status(result) shouldBe NOT_FOUND
+    }
+
+    "return a NOT FOUND when ETMP returns a revoked business with date prior to 01 April 2017" in {
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(revokedBusinessPriorToFirstApril))))
+      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+      status(result) shouldBe NOT_FOUND
+    }
+
+    "return a NOT FOUND when ETMP returns a revoked business with date of 01 April 2017" in {
+      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(revokedBusinessFirstApril))))
+      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+      status(result) shouldBe NOT_FOUND
+    }
+
+
+
     /*
     *
     */

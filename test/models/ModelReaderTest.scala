@@ -71,6 +71,14 @@ class ModelReaderTest extends AwrsUnitTestTraits {
       businessObject.results.head.get.registrationEndDate.get shouldBe expected
     }
 
+    "Update date if they are before 1st April 2017" in {
+      val date = "2010-4-1"
+      val expected = "01 April 2017"
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.registrationDate.get shouldBe expected
+    }
+
     "do not update Dates if they are after 1st April 2017" in {
       val date = "2017-4-2"
       val expected = "02 April 2017"
