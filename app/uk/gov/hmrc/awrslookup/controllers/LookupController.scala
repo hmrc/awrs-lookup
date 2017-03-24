@@ -65,50 +65,46 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
               val status = (lookupResponse.json \ "awrsStatus").validate[String]
               val endDate =  (lookupResponse.json  \ "endDate").validate[DateTime]
               val earliestDate = DateTime.parse("2017-04-01")
-
               (status,endDate) match {
                 case (s: JsSuccess[String],e: JsSuccess[DateTime]) => {
-                  if ( status.get.toLowerCase != "approved" && (endDate.get.isBefore(earliestDate) || endDate.get == earliestDate)) {
-                    metrics.incrementSuccessCounter(apiType)
-                    audit(auditLookupTxName, Map("Search Result" -> "success - capped (Prior 01/04/2017)"), eventTypeSuccess)
+                  if (status.get.toLowerCase != "approved" && (endDate.get.isBefore(earliestDate) || endDate.get == earliestDate)) {
+                    DoAuditing(apiType,"Search Result","success - capped (Prior 01/04/2017)",eventTypeSuccess,metrics.incrementSuccessCounter)
                     NotFound(referenceNotFoundString)
                   } else {
-                    metrics.incrementSuccessCounter(apiType)
-                    audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
+                    DoAuditing(apiType,"Search Result","success",eventTypeSuccess,metrics.incrementSuccessCounter)
                     val convertedJson = lookupResponse.json.as[SearchResult]
                     Ok(Json.toJson(convertedJson))
                   }
                 }
                 case _ => {
-                  metrics.incrementSuccessCounter(apiType)
-                  audit(auditLookupTxName, Map("Search Result" -> "success"), eventTypeSuccess)
+                  DoAuditing(apiType,"Search Result","success",eventTypeSuccess,metrics.incrementSuccessCounter)
                   val convertedJson = lookupResponse.json.as[SearchResult]
                   Ok(Json.toJson(convertedJson))
                 }
               }
           }
           case NOT_FOUND =>
-            metrics.incrementFailedCounter(apiType)
-            audit(auditLookupTxName, Map("Search Result" -> "NOT_FOUND"), eventTypeNotFound)
+            DoAuditing(apiType,"Search Result","NOT_FOUND",eventTypeNotFound,metrics.incrementFailedCounter)
             NotFound(referenceNotFoundString)
           case BAD_REQUEST =>
-            metrics.incrementFailedCounter(apiType)
-            audit(auditLookupTxName, Map("Search Result" -> "BAD_REQUEST"), eventTypeNotFound)
+            DoAuditing(apiType,"Search Result","BAD_REQUEST",eventTypeNotFound,metrics.incrementFailedCounter)
             BadRequest(lookupResponse.body)
           case INTERNAL_SERVER_ERROR =>
-            metrics.incrementFailedCounter(apiType)
-            audit(auditLookupTxName, Map("Search Result" -> "INTERNAL_SERVER_ERROR"), eventTypeNotFound)
+            DoAuditing(apiType,"Search Result","INTERNAL_SERVER_ERROR",eventTypeNotFound,metrics.incrementFailedCounter)
             InternalServerError(lookupResponse.body)
           case SERVICE_UNAVAILABLE =>
-            metrics.incrementFailedCounter(apiType)
-            audit(auditLookupTxName, Map("Search Result" -> "SERVICE_UNAVAILABLE"), eventTypeNotFound)
+            DoAuditing(apiType,"Search Result","SERVICE_UNAVAILABLE",eventTypeNotFound,metrics.incrementFailedCounter)
             ServiceUnavailable(lookupResponse.body)
           case _ =>
-            metrics.incrementFailedCounter(apiType)
-            audit(auditLookupTxName, Map("Search Result" -> "OTHER_ERROR"), eventTypeNotFound)
+            DoAuditing(apiType,"Search Result","OTHER_ERROR",eventTypeNotFound,metrics.incrementFailedCounter)
             InternalServerError(lookupResponse.body)
         }
     }
+
+  private def DoAuditing(apiType : ApiType, action: String, message: String, eventType: String, incrementCounter: (ApiType) => Unit) (implicit hc: HeaderCarrier)= {
+    incrementCounter(apiType)
+    audit(auditLookupTxName, Map(action -> message), eventType)
+  }
 }
 
 
