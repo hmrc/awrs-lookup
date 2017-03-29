@@ -36,7 +36,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils {
 
   val referenceNotFoundString = "AWRS reference not found"
-
   val lookupService: EtmpLookupService = EtmpLookupService
   val metrics: AwrsLookupMetrics = AwrsLookupMetrics
 
