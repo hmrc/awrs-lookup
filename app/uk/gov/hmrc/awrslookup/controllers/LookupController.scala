@@ -28,10 +28,10 @@ import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 import uk.gov.hmrc.awrslookup.models.frontend._
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils {
 

@@ -17,10 +17,10 @@
 package uk.gov.hmrc.awrslookup.services
 
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 object EtmpLookupService extends EtmpLookupService {
   val etmpConnector: EtmpConnector = EtmpConnector

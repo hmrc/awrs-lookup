@@ -23,12 +23,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.awrslookup.controllers.LookupController
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
-import uk.gov.hmrc.play.http.HttpResponse
 import utils.AwrsUnitTestTraits
 import utils.AwrsTestJson._
 import utils.AwrsTestConstants._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class LookupControllerTest extends AwrsUnitTestTraits {
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
