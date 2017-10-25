@@ -22,17 +22,17 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.http.logging.SessionId
 import uk.gov.hmrc.play.http.ws.{WSGet, WSPost, WSPut}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 import play.api.http.Status._
 import utils.AwrsTestConstants._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 
 class EtmpConnectorTest extends AwrsUnitTestTraits {
 
@@ -40,7 +40,7 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
     override lazy val auditingConfig = LoadAuditingConfig("auditing")
   }
 
-  class MockHttp extends WSGet with WSPost with WSPut with HttpAuditing {
+  class MockHttp extends HttpGet with WSGet with HttpPost with WSPost with HttpPut with WSPut with HttpAuditing {
     override val hooks = Seq(AuditingHook)
 
     override def auditConnector: AuditConnector = TestAuditConnector
@@ -66,7 +66,7 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
       val lookupSuccess = AwrsTestJson.businessJson
       val awrsRefNo = testRefNo
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
       val result = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
@@ -75,7 +75,7 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
       val lookupSuccess = AwrsTestJson.businessJson
       val businessName = testBusinessName
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
       val result = TestEtmpConnector.lookupByName(businessName)
       await(result).json shouldBe lookupSuccess
     }

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
-import java.net.{URLEncoder, URLDecoder}
+import java.net.{URLDecoder, URLEncoder}
 
 import play.api.Logger
 import uk.gov.hmrc.awrslookup.WSHttp
@@ -24,10 +24,11 @@ import uk.gov.hmrc.awrslookup.audit.Auditable
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.http.logging.Authorization
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, HttpResponse}
+import uk.gov.hmrc.http.logging.Authorization
 
 trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
 
@@ -46,7 +47,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   }
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
-    val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
+    val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
     future.onFailure {
       case e: Exception => err("get request failed: url=$url\ne=$e\n")
     }

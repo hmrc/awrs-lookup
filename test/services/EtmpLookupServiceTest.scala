@@ -26,13 +26,13 @@ import play.api.test.Helpers._
 import play.libs.Json
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
-import uk.gov.hmrc.play.http.logging.SessionId
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.logging.SessionId
 
 class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar {
 
