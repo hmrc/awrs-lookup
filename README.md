@@ -3,6 +3,8 @@ AWRS Lookup
 
 [![Build Status](https://travis-ci.org/hmrc/awrs-lookup.svg)](https://travis-ci.org/hmrc/awrs-lookup) [ ![Download](https://api.bintray.com/packages/hmrc/releases/awrs-lookup/images/download.svg) ](https://bintray.com/hmrc/releases/awrs-lookup/_latestVersion)
 
+This service allows queries to be run against AWRS registrations submitted to ETMP.
+
 ## License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
