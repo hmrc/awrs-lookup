@@ -1,61 +1,69 @@
-Backend of the Alcohol Wholesale Registration Scheme Lookup application
-====================================================================
+AWRS Lookup
+===========
 
 [![Build Status](https://travis-ci.org/hmrc/awrs-lookup.svg)](https://travis-ci.org/hmrc/awrs-lookup) [ ![Download](https://api.bintray.com/packages/hmrc/releases/awrs-lookup/images/download.svg) ](https://bintray.com/hmrc/releases/awrs-lookup/_latestVersion)
 
-This service provides the backend endpoint for the [Alcohol Wholesale Registration Scheme project](https://github.com/hmrc/awrs-lookup-frontend).
+## License
 
-Summary
------------
+This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
 
-This service allow a customer to apply for apply for Alcohol Wholesale Registration Scheme.
-
-Requirements
-------------
+## Requirements
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs at least a [JRE] to run.
 
-Authentication
-------------
+## List of APIs
 
-This customer logs into this service using [GOV.UK Verify](https://www.gov.uk/government/publications/introducing-govuk-verify/introducing-govuk-verify).
+| PATH | Supported Methods | Description |
+| --------------- | --------------- | --------------- |
+| /awrs-lookup/query/urn/:awrsRef | GET | Calls ETMP to lookup by awrs reference number |
+| /awrs-lookup/query/name/:queryString | GET | Calls ETMP to lookup by name |
 
+where,
 
-Acronyms
----
+| Parameter | Description | Valid values | Example |
+| --------------- | --------------- | --------------- | --------------- |
+| awrsRef | the awrs reference number of an organisation or individual | string | XXAW00000123462 |
+| queryString | the name of an organisation or individual | string |  |
 
-In the context of this application we use the following acronyms and define their
-meanings. Provided you will also find a web link to discover more about the systems
-and technology.
+and possible responses are:-
 
-* [API]: Application Programming Interface
+| Response code | Message |
+| --------------- | --------------- |
+| 200 | OK |
+| 404 | Not Found |
+| 400 | Bad request |
+| 503 | Service unavailable |
+| 500 | Internal server error |
 
-* [HoD]: Head of Duty
+**Sample response**
+{ 
+   "results":[ 
+      { 
+         "class":"Business",
+         "data":{  
+            "awrsRef":"XXAW00000123462",
+            "registrationDate":"15 April 2018",
+            "status":"04",
+            "info":{  
+               "businessName":"Company Name",
+               "tradingName":"Trading Name",
+               "address":{  
+                  "addressLine1":"23 Xxxx Street",
+                  "addressLine2":"Yyyyyyyy",
+                  "addressLine3":"Gloucester",
+                  "addressLine4":"Gloucestershire",
+                  "postcode":"XX9 1XX"
+               }
+            }
+         }
+      }
+   ]
+}
 
-* [JRE]: Java Runtime Environment
+### Examples
 
-* [JSON]: JavaScript Object Notation
+| Method | URI |
+| --------------- | --------------- |
+| GET | /awrs-lookup/query/urn/XXAW00000123462 |
+| GET | /awrs-lookup/query/name/Bricks%20Ltd |
 
-* [NINO]: National Insurance Number
-
-* [URL]: Uniform Resource Locator
-
-* [CID]: Citizen Identifier
-
-
-[NPS]: http://www.publications.parliament.uk/pa/cm201012/cmselect/cmtreasy/731/73107.htm
-[HoD]: http://webarchive.nationalarchives.gov.uk/+/http://www.hmrc.gov.uk/manuals/sam/samglossary/samgloss249.htm
-[NINO]: http://www.hmrc.gov.uk/manuals/nimmanual/nim39110.htm
-[National Insurance]: https://www.gov.uk/national-insurance/overview
-[JRE]: http://www.oracle.com/technetwork/java/javase/overview/index.html
-[API]: https://en.wikipedia.org/wiki/Application_programming_interface
-[URL]: https://en.wikipedia.org/wiki/Uniform_Resource_Locator
-[State Pension]: https://www.gov.uk/new-state-pension/overview
-[SP]: https://www.gov.uk/new-state-pension/overview
-[JSON]: http://json.org/
-
-
-
-### License
-
-This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
