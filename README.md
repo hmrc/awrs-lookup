@@ -23,7 +23,7 @@ where,
 | Parameter | Description | Valid values | Example |
 | --------------- | --------------- | --------------- | --------------- |
 | awrsRef | the awrs reference number of an organisation or individual | string | XXAW00000123462 |
-| queryString | the name of an organisation or individual | string |  |
+| queryString | the name of an organisation or individual | string | Bricks%20Ltd |
 
 and possible responses are:-
 
@@ -36,6 +36,7 @@ and possible responses are:-
 | 500 | Internal server error |
 
 **Sample response**
+```json
 { 
    "results":[ 
       { 
@@ -59,6 +60,7 @@ and possible responses are:-
       }
    ]
 }
+```
 
 ### Examples
 
