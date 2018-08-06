@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@
 package uk.gov.hmrc.awrslookup.controllers
 
 import javax.inject.Inject
-
 import metrics.AwrsLookupMetrics
 import org.joda.time.DateTime
-import play.api.Environment
+import play.api.{Environment, Logger}
 import play.api.libs.json.{JsSuccess, Json}
 import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.ApiType
@@ -31,7 +30,7 @@ import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 class LookupController @Inject()(val environment: Environment) extends BaseController with LoggingUtils {
 
@@ -91,6 +90,7 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
         BadRequest(lookupResponse.body)
       case INTERNAL_SERVER_ERROR =>
         DoAuditing(apiType, "Search Result", "INTERNAL_SERVER_ERROR", eventTypeInternalServerError, metrics.incrementFailedCounter)
+        Logger.error(lookupResponse.body)
         InternalServerError(lookupResponse.body)
       case SERVICE_UNAVAILABLE =>
         DoAuditing(apiType, "Search Result", "SERVICE_UNAVAILABLE", eventTypeServiceUnavailable, metrics.incrementFailedCounter)
@@ -106,5 +106,3 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
     audit(auditLookupTxName, Map(action -> message), eventType)
   }
 }
-
-
