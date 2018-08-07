@@ -91,9 +91,10 @@ class LookupController @Inject()(val environment: Environment) extends BaseContr
       case INTERNAL_SERVER_ERROR =>
         DoAuditing(apiType, "Search Result", "INTERNAL_SERVER_ERROR", eventTypeInternalServerError, metrics.incrementFailedCounter)
         Logger.error(lookupResponse.body)
-        InternalServerError(lookupResponse.body)
+        InternalServerError(s"INTERNAL_SERVER_ERROR - LookupController - processResponse\n${lookupResponse.body}")
       case SERVICE_UNAVAILABLE =>
         DoAuditing(apiType, "Search Result", "SERVICE_UNAVAILABLE", eventTypeServiceUnavailable, metrics.incrementFailedCounter)
+        Logger.error(s"SERVICE_UNAVAILABLE - LookupController - processResponse\n${lookupResponse.body}")
         ServiceUnavailable(lookupResponse.body)
       case _ =>
         DoAuditing(apiType, "Search Result", "OTHER_ERROR", eventTypeGeneric, metrics.incrementFailedCounter)
