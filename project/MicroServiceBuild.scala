@@ -13,7 +13,6 @@ private object AppDependencies {
   import play.sbt.PlayImport._
 
   private val microserviceBootstrapVersion = "6.18.0"
-  private val playUrlBindersVersion = "2.1.0"
   private val domainVersion = "4.1.0"
   private val hmrcTestVersion = "2.3.0"
   private val scalaTestVersion = "2.2.6"
@@ -25,7 +24,6 @@ private object AppDependencies {
 
     ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
-    "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion
   )
 
