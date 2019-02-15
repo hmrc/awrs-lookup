@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,10 @@ import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
 import net.ceedubs.ficus.Ficus._
+import play.api.Mode.Mode
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
-import uk.gov.hmrc.play.microservice.filters.{ AuditFilter, LoggingFilter, MicroserviceFilterSupport }
+import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 
 
 object ControllerConfiguration extends ControllerConfig {
@@ -39,6 +40,8 @@ object AuthParamsControllerConfiguration extends AuthParamsControllerConfig {
 object MicroserviceAuditFilter extends AuditFilter with AppName with MicroserviceFilterSupport {
   override val auditConnector = MicroserviceAuditConnector
   override def controllerNeedsAuditing(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsAuditing
+
+  override protected def appNameConfiguration: Configuration = Play.current.configuration
 }
 
 object MicroserviceLoggingFilter extends LoggingFilter with MicroserviceFilterSupport {
@@ -61,4 +64,8 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode with Mi
   override val microserviceAuditFilter = MicroserviceAuditFilter
 
   override val authFilter = Some(MicroserviceAuthFilter)
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

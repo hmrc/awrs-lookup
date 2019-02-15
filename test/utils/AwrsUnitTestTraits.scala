@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.Environment
-import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 
-trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfter with OneServerPerSuite {
+trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfter with OneServerPerSuite with I18nSupport {
 
   implicit lazy val hc = HeaderCarrier()
 
@@ -38,8 +38,6 @@ trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfter 
   implicit def convertToFuture[T](err: Throwable): Future[Option[T]] = Future.failed(err)
 
   implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-
-  implicit val messages = Messages(Lang("en"), messagesApi)
 
   implicit val environment: Environment = app.injector.instanceOf[Environment]
 
