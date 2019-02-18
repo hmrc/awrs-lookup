@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,23 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
-import java.net.{URLDecoder, URLEncoder}
+import java.net.URLEncoder
 
-import play.api.Logger
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import uk.gov.hmrc.awrslookup.WSHttp
-import uk.gov.hmrc.awrslookup.audit.Auditable
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, HttpResponse}
 import uk.gov.hmrc.http.logging.Authorization
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, HttpResponse}
+import uk.gov.hmrc.play.config.ServicesConfig
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
+
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
