@@ -15,7 +15,7 @@ private object AppDependencies {
   private val microserviceBootstrapVersion = "10.4.0"
   private val domainVersion = "5.3.0"
   private val hmrcTestVersion = "3.8.0-play-26"
-  private val scalaTestVersion = "3.0.2"
+  private val scalaTestVersion = "3.0.7"
   private val scalaTestPlusPlayVersion = "3.1.2"
   private val pegdownVersion = "1.6.0"
   private val mockitoVersion = "1.10.19"
@@ -56,7 +56,7 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus" %% "play" % "1.2.0" % scope
+        "org.scalatestplus" %% "play" % "1.4.0" % scope
       )
     }.test
   }
