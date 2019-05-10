@@ -19,6 +19,7 @@ package utils
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Environment
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,7 +28,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.Future
 
 
-trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfter with OneServerPerSuite with I18nSupport {
+trait AwrsUnitTestTraits extends UnitSpec with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite with I18nSupport {
 
   implicit lazy val hc = HeaderCarrier()
 

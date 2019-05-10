@@ -18,31 +18,25 @@ package uk.gov.hmrc.awrslookup.connectors
 
 import java.net.URLEncoder
 
-import play.api.{Configuration, Play}
-import play.api.Mode.Mode
-import uk.gov.hmrc.awrslookup.WSHttp
+import javax.inject.Inject
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.logging.Authorization
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
+class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClient, loggingUtils: LoggingUtils) extends RawResponseReads {
 
-  override protected def mode: Mode = Play.current.mode
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  lazy val serviceURL = baseUrl("etmp-hod")
+  lazy val serviceURL: String = config.baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
   val lookupByUrnURI = "/lookup/id/"
   val lookupByNameURI = "/lookup/name/"
 
-  val urlHeaderEnvironment: String
-  val urlHeaderAuthorization: String
-
-  val http: HttpGet = WSHttp
+  val urlHeaderEnvironment: String = config.getConfString("etmp-hod.environment", "")
+  val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
 
   private def encode(url: String) = {
     URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20")
@@ -51,7 +45,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
     val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
     future.onFailure {
-      case e: Exception => err("get request failed: url=$url\ne=$e\n")
+      case e: Exception => loggingUtils.err("get request failed: url=$url\ne=$e\n")
     }
     future
   }
@@ -68,9 +62,4 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
     cGET( s"""$serviceURL$baseURI$lookupByNameURI${encode(queryString)}""")
   }
 
-}
-
-object EtmpConnector extends EtmpConnector {
-  override val urlHeaderEnvironment: String = config("etmp-hod").getString("environment").getOrElse("")
-  override val urlHeaderAuthorization: String = s"Bearer ${config("etmp-hod").getString("authorization-token").getOrElse("")}"
 }

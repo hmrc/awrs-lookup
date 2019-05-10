@@ -16,33 +16,33 @@
 
 package controllers
 
+import metrics.AwrsLookupMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.awrslookup.controllers.LookupController
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
-import utils.AwrsUnitTestTraits
-import utils.AwrsTestJson._
+import uk.gov.hmrc.awrslookup.utils.LoggingUtils
+import uk.gov.hmrc.http.HttpResponse
 import utils.AwrsTestConstants._
+import utils.AwrsTestJson._
+import utils.AwrsUnitTestTraits
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HttpResponse
 
 class LookupControllerTest extends AwrsUnitTestTraits {
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
-  val lookupFailure = Json.parse( """{"reason": "Generic test reason"}""")
+  val lookupFailure: JsValue = Json.parse( """{"reason": "Generic test reason"}""")
+  val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
+  val awrsMetrics: AwrsLookupMetrics = app.injector.instanceOf[AwrsLookupMetrics]
+  val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
 
-  object TestLookupController extends LookupController(environment = environment) {
-    override val lookupService: EtmpLookupService = mockEtmpLookupService
-  }
+  object TestLookupController extends LookupController(environment, controllerComponents, awrsMetrics, mockEtmpLookupService, loggingUtils)
 
   "Lookup Controller " should {
-
-    "use the correct Lookup service" in {
-      new LookupController(environment = environment).lookupService shouldBe EtmpLookupService
-    }
 
     "lookup awrs entry from HODS when passed a valid awrs reference" in {
       when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(businessJson))))

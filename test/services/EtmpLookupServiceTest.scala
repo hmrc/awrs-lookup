@@ -21,33 +21,28 @@ import java.util.UUID
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import play.libs.Json
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
-import uk.gov.hmrc.http.logging.SessionId
 
-class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar {
+class EtmpLookupServiceTest extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-  val mockEtmpConnector = mock[EtmpConnector]
+  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
-  object TestEtmpLookupService extends EtmpLookupService {
-    override val etmpConnector = mockEtmpConnector
-  }
+  object TestEtmpLookupService extends EtmpLookupService(mockEtmpConnector)
 
   "EtmpLookupService " should {
-    "use the correct connector" in {
-      EtmpLookupService.etmpConnector shouldBe EtmpConnector
-    }
 
     "successfully lookup an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo
@@ -58,7 +53,8 @@ class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with Mockito
 
     "succesfully return an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo
-      val expectedOutput = """{
+      val expectedOutput =
+        """{
                                   "awrsRegistrationNumber" : "2345678",
                                  "startDate" : "2016-04-01",
                                   "endDate" : "2016-10-17",
