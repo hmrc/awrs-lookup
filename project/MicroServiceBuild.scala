@@ -12,19 +12,19 @@ private object AppDependencies {
   import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val microserviceBootstrapVersion = "10.3.0"
   private val domainVersion = "5.3.0"
-  private val hmrcTestVersion = "3.4.0-play-25"
-  private val scalaTestVersion = "3.0.5"
-  private val scalaTestPlusPlayVersion = "2.0.1"
+  private val hmrcTestVersion = "3.8.0-play-26"
+  private val scalaTestVersion = "3.0.7"
+  private val scalaTestPlusPlayVersion = "3.1.2"
   private val pegdownVersion = "1.6.0"
   private val mockitoVersion = "1.10.19"
 
   val compile = Seq(
 
     ws,
-    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
-    "uk.gov.hmrc" %% "domain" % domainVersion
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "0.39.0",
+    "uk.gov.hmrc" %% "domain" % domainVersion,
+    "com.typesafe.play" %% "play-json-joda" % "2.6.13"
   )
 
   trait TestDependencies {
@@ -55,7 +55,7 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus" %% "play" % "1.2.0" % scope
+        "org.scalatestplus" %% "play" % "1.4.0" % scope
       )
     }.test
   }

@@ -16,40 +16,35 @@
 
 package metrics
 
-import com.codahale.metrics.Timer
+import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.Timer.Context
+import com.google.inject.Inject
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
-import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
-trait AwrsLookupMetrics extends MicroserviceMetrics {
-  def startTimer(api: ApiType): Timer.Context
+class AwrsLookupMetrics @Inject()() {
 
-  def incrementSuccessCounter(api: ApiType.ApiType): Unit
-
-  def incrementFailedCounter(api: ApiType.ApiType): Unit
-}
-
-object AwrsLookupMetrics extends AwrsLookupMetrics {
+  val metricRegistry = new MetricRegistry
 
   val timers = Map(
-    ApiType.LookupByURN -> metrics.defaultRegistry.timer("etmp-lookup-by-urn-response-timer"),
-    ApiType.LookupByName -> metrics.defaultRegistry.timer("etmp-lookup-by-name-response-timer")
-   )
+    ApiType.LookupByURN -> metricRegistry.timer("etmp-lookup-by-urn-response-timer"),
+    ApiType.LookupByName -> metricRegistry.timer("etmp-lookup-by-name-response-timer")
+  )
 
   val successCounters = Map(
-    ApiType.LookupByURN -> metrics.defaultRegistry.counter("etmp-lookup-by-urn-success"),
-    ApiType.LookupByName -> metrics.defaultRegistry.counter("etmp-lookup-by-name-success")
+    ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-success"),
+    ApiType.LookupByName -> metricRegistry.counter("etmp-lookup-by-name-success")
   )
 
   val failedCounters = Map(
-    ApiType.LookupByURN -> metrics.defaultRegistry.counter("etmp-lookup-by-urn-failed"),
-    ApiType.LookupByName -> metrics.defaultRegistry.counter("etmp-lookup-by-name-failed")
+    ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-failed"),
+    ApiType.LookupByName -> metricRegistry.counter("etmp-lookup-by-name-failed")
   )
 
-  override def startTimer(api: ApiType): Context = timers(api).time()
+  def startTimer(api: ApiType): Context = timers(api).time()
 
-  override def incrementSuccessCounter(api: ApiType): Unit = successCounters(api).inc()
+  def incrementSuccessCounter(api: ApiType): Unit = successCounters(api).inc()
 
-  override def incrementFailedCounter(api: ApiType): Unit = failedCounters(api).inc()
+  def incrementFailedCounter(api: ApiType): Unit = failedCounters(api).inc()
 }
+

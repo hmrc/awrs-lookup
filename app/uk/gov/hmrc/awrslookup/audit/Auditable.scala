@@ -16,19 +16,15 @@
 
 package uk.gov.hmrc.awrslookup.audit
 
-import play.api.Play
-import uk.gov.hmrc.awrslookup.MicroserviceAuditConnector
-import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.audit.AuditExtensions
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
+import javax.inject.{Inject, Named}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.AuditExtensions
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
 
-trait Auditable {
+class Auditable @Inject()(auditConnector: AuditConnector, @Named("appName") val appName: String) {
 
-  def appName: String = AppName(Play.current.configuration).appName
-
-  def audit: Audit = new Audit(appName, MicroserviceAuditConnector)
+  def audit: Audit = new Audit(appName, auditConnector)
 
   def sendDataEvent(transactionName: String,
                     path: String = "N/A",

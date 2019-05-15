@@ -21,10 +21,12 @@ import java.util.UUID
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.http.Status._
-import uk.gov.hmrc.awrslookup.WSHttp
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
+import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestConstants._
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 
@@ -32,13 +34,11 @@ import scala.concurrent.Future
 
 class EtmpConnectorTest extends AwrsUnitTestTraits {
 
-  val mockWSHttp: WSHttp = mock[WSHttp]
+  val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
+  val servicesConfig: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
 
-  object TestEtmpConnector extends EtmpConnector {
-    override val http = mockWSHttp
-    override val urlHeaderEnvironment: String = config("etmp-hod").getString("environment").getOrElse("")
-    override val urlHeaderAuthorization: String = s"Bearer ${config("etmp-hod").getString("authorization-token").getOrElse("")}"
-  }
+  object TestEtmpConnector extends EtmpConnector(servicesConfig, mockWSHttp, loggingUtils)
 
   before {
     reset(mockWSHttp)
