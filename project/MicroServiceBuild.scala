@@ -12,7 +12,6 @@ private object AppDependencies {
   import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val microserviceBootstrapVersion = "10.4.0"
   private val domainVersion = "5.3.0"
   private val hmrcTestVersion = "3.8.0-play-26"
   private val scalaTestVersion = "3.0.7"
