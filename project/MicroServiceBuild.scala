@@ -8,23 +8,23 @@ object MicroServiceBuild extends Build with MicroService {
 }
 
 private object AppDependencies {
-
+  
   import play.core.PlayVersion
   import play.sbt.PlayImport._
-
-  private val domainVersion = "5.3.0"
-  private val hmrcTestVersion = "3.8.0-play-26"
-  private val scalaTestVersion = "3.0.7"
-  private val scalaTestPlusPlayVersion = "3.1.2"
+  
+  private val domainVersion = "5.6.0-play-26"
+  private val hmrcTestVersion = "3.9.0-play-26"
+  private val scalaTestVersion = "3.0.8"
+  private val scalaTestPlusPlayVersion = "3.1.3"
   private val pegdownVersion = "1.6.0"
   private val mockitoVersion = "1.10.19"
 
   val compile = Seq(
 
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % "0.39.0",
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
-    "com.typesafe.play" %% "play-json-joda" % "2.6.13"
+    "com.typesafe.play" %% "play-json-joda" % "2.6.14"
   )
 
   trait TestDependencies {

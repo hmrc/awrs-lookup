@@ -108,5 +108,3 @@ class LookupController @Inject()(val environment: Environment,
     loggingUtils.audit(loggingUtils.auditLookupTxName, Map(action -> message), eventType)
   }
 }
-
-
