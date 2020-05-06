@@ -1,18 +1,11 @@
 import sbt._
 
-object MicroServiceBuild extends Build with MicroService {
-
-  val appName = "awrs-lookup"
-
-  override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
-}
-
-private object AppDependencies {
+object AppDependencies {
   
   import play.core.PlayVersion
   import play.sbt.PlayImport._
   
-  private val domainVersion = "5.6.0-play-26"
+  private val domainVersion = "5.8.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
   private val scalaTestVersion = "3.0.8"
   private val scalaTestPlusPlayVersion = "3.1.3"
@@ -22,7 +15,7 @@ private object AppDependencies {
   val compile = Seq(
 
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.7.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "com.typesafe.play" %% "play-json-joda" % "2.6.14"
   )
@@ -54,8 +47,7 @@ private object AppDependencies {
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
-        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus" %% "play" % "1.4.0" % scope
+        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
       )
     }.test
   }
