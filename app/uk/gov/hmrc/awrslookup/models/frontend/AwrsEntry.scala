@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import play.api.Environment
 import play.api.libs.json._
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.{EtmpDateReader, EtmpDateReaderTemp}
-
-import scala.util.Try
 
 trait AwrsEntry {
   def awrsRef: String
@@ -51,35 +48,31 @@ object AwrsEntry {
     }).get
   }
 
-  implicit val frontEndFormatter = Json.format[AwrsEntry]
+  implicit val frontEndFormatter: OFormat[AwrsEntry] = Json.format[AwrsEntry]
 
-  def etmpReader(implicit environment: play.api.Environment): Reads[AwrsEntry] = new Reads[AwrsEntry] {
-
-    //TODO schema validation
-    def reads(js: JsValue): JsResult[AwrsEntry] = {
-      for {
-        // TODO remove endDatePreApril line after 1st of April and pass endDate to awrsStatus reader
-        endDatePreApril <- (js \ "endDate").validateOpt[String](EtmpDateReaderTemp)
-        awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
-        startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
-        endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
-        wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
-        awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader(endDatePreApril))
-        groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
-      } yield {
-        groupMembers match {
-          case Some(grpMembers) => Group(awrsRef = awrsRegistrationNumber,
-            registrationDate = startDate,
-            status = awrsStatus,
-            info = wholesaler,
-            members = grpMembers,
-            registrationEndDate = endDate)
-          case _ => Business(awrsRef = awrsRegistrationNumber,
-            registrationDate = startDate,
-            status = awrsStatus,
-            info = wholesaler,
-            registrationEndDate = endDate)
-        }
+  def etmpReader(implicit environment: Environment): Reads[AwrsEntry] = (js: JsValue) => {
+    for {
+      // TODO remove endDatePreApril line after 1st of April and pass endDate to awrsStatus reader
+      endDatePreApril <- (js \ "endDate").validateOpt[String](EtmpDateReaderTemp)
+      awrsRegistrationNumber <- (js \ "awrsRegistrationNumber").validate[String]
+      startDate <- (js \ "startDate").validateOpt[String](EtmpDateReader)
+      endDate <- (js \ "endDate").validateOpt[String](EtmpDateReader)
+      wholesaler <- (js \ "wholesaler").validate[Info](Info.etmpReader)
+      awrsStatus <- (js \ "awrsStatus").validate[AwrsStatus](AwrsStatus.etmpReader(endDatePreApril))
+      groupMembers <- (js \ "groupMembers").validateOpt[List[Info]](Reads.list(Info.etmpReader))
+    } yield {
+      groupMembers match {
+        case Some(grpMembers) => Group(awrsRef = awrsRegistrationNumber,
+          registrationDate = startDate,
+          status = awrsStatus,
+          info = wholesaler,
+          members = grpMembers,
+          registrationEndDate = endDate)
+        case _ => Business(awrsRef = awrsRegistrationNumber,
+          registrationDate = startDate,
+          status = awrsStatus,
+          info = wholesaler,
+          registrationEndDate = endDate)
       }
     }
   }

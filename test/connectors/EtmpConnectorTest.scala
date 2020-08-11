@@ -20,7 +20,10 @@ import java.util.UUID
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatestplus.play.PlaySpec
 import play.api.http.Status._
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http._
@@ -32,7 +35,7 @@ import utils.{AwrsTestJson, AwrsUnitTestTraits}
 
 import scala.concurrent.Future
 
-class EtmpConnectorTest extends AwrsUnitTestTraits {
+class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
 
   val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
   val servicesConfig: ServicesConfig = app.injector.instanceOf[ServicesConfig]
@@ -44,12 +47,12 @@ class EtmpConnectorTest extends AwrsUnitTestTraits {
     reset(mockWSHttp)
   }
 
-  "EtmpConnector" should {
+  "EtmpConnector" must {
 
     "lookup an application with a valid reference number " in {
       val lookupSuccess = AwrsTestJson.businessJson
       val awrsRefNo = testRefNo
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
       val result = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json shouldBe lookupSuccess

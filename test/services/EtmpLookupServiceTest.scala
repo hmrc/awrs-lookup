@@ -20,7 +20,9 @@ import java.util.UUID
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import play.libs.Json
@@ -28,13 +30,12 @@ import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
 
-class EtmpLookupServiceTest extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
@@ -42,7 +43,7 @@ class EtmpLookupServiceTest extends UnitSpec with GuiceOneAppPerSuite with Mocki
 
   object TestEtmpLookupService extends EtmpLookupService(mockEtmpConnector)
 
-  "EtmpLookupService " should {
+  "EtmpLookupService " must {
 
     "successfully lookup an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo

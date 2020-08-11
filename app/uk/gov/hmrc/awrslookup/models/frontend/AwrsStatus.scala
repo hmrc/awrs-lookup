@@ -36,17 +36,12 @@ object AwrsStatus {
       Revoked,
       DeRegistered)
 
-  implicit val reader: Reads[AwrsStatus] = new Reads[AwrsStatus] {
-    def reads(json: JsValue): JsResult[AwrsStatus] =
-      JsSuccess(json match {
-        case JsString(code) => apply(code)
-        case _ => apply("-01")
-      })
-  }
+  implicit val reader: Reads[AwrsStatus] = (json: JsValue) => JsSuccess(json match {
+    case JsString(code) => apply(code)
+    case _ => apply("-01")
+  })
 
-  implicit val writer: Writes[AwrsStatus] = new Writes[AwrsStatus] {
-    def writes(v: AwrsStatus): JsValue = JsString(v.code)
-  }
+  implicit val writer: Writes[AwrsStatus] = (v: AwrsStatus) => JsString(v.code)
 
   def apply(code: String): AwrsStatus = code match {
     case Approved.code => Approved
@@ -74,9 +69,9 @@ object AwrsStatus {
     val name = "Not Found"
   }
 
-  def etmpReader(endDate: Option[String])(implicit environment: play.api.Environment): Reads[AwrsStatus] = new Reads[AwrsStatus] {
+  def etmpReader(endDate: Option[String]): Reads[AwrsStatus] = new Reads[AwrsStatus] {
 
-    def isDeregDateInTheFuture(endDate: Option[String]) =
+    def isDeregDateInTheFuture(endDate: Option[String]): Boolean =
       endDate match {
         case Some(date) => DateTime.parse(date, DateTimeFormat.forPattern(EtmpDateReader.frontEndDatePattern)).isAfter(DateTime.now())
         case _ => false // TODO should never happen but should we throw an exception instead?
@@ -89,13 +84,15 @@ object AwrsStatus {
         // remove case sensitivity, spaces and dashes as the schema has changed a few times and caused issues
         awrsStatus.toLowerCase.replaceAll(" ", "").replaceAll("-", "") match {
           case "approved" | "approvedwithconditions" => Approved
-          case "deregistered" => isDeregDateInTheFuture(endDate) match {
-            case true => Approved
-            case _ => DeRegistered
+          case "deregistered" => if (isDeregDateInTheFuture(endDate)) {
+            Approved
+          } else {
+            DeRegistered
           }
-          case "revoked" | "revokedunderreview/appeal" => isDeregDateInTheFuture(endDate) match {
-            case true => Approved
-            case _ => Revoked
+          case "revoked" | "revokedunderreview/appeal" => if (isDeregDateInTheFuture(endDate)) {
+            Approved
+          } else {
+            Revoked
           }
           case _ => NotFound(awrsStatus)
         }

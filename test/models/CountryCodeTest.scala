@@ -16,12 +16,14 @@
 
 package models
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatestplus.play.PlaySpec
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 import utils.AwrsUnitTestTraits
 
-class CountryCodeTest extends AwrsUnitTestTraits {
+class CountryCodeTest extends PlaySpec with AwrsUnitTestTraits {
 
-  "CountryCodeTest" should {
+  "CountryCodeTest" must {
     "successfully convert a country code to a country" in {
       CountryCodes.getCountry("GB") should be (Some("United Kingdom"))
     }

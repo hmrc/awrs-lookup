@@ -17,15 +17,17 @@
 package models
 
 import org.joda.time.DateTime
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 import uk.gov.hmrc.awrslookup.models.frontend.{AwrsStatus, Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 import utils.TestUtil._
 
-class ModelReaderTest extends AwrsUnitTestTraits {
+class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
 
-  "ModelReaderTest" should {
+  "ModelReaderTest" must {
     "successfully read the group json into a group object" in {
       val groupObject = AwrsTestJson.groupJson.as[SearchResult](SearchResult.etmpByUrnReader)
       groupObject.results.head.isInstanceOf[Group] shouldBe true

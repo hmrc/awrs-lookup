@@ -43,8 +43,8 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClien
   }
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
-    val future = http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
-    future.onFailure {
+    val future: Future[A] = http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
+    future.foreach {
       case e: Exception => loggingUtils.err(s"get request failed: url=$url\ne=$e\n")
     }
     future
