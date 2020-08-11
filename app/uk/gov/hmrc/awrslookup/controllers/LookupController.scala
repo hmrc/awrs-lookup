@@ -28,7 +28,7 @@ import uk.gov.hmrc.awrslookup.models.frontend._
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import play.api.libs.json.JodaReads._
 
 import scala.concurrent.ExecutionContext.Implicits.global

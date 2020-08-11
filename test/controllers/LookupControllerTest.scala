@@ -19,6 +19,8 @@ package controllers
 import metrics.AwrsLookupMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
@@ -33,7 +35,7 @@ import utils.AwrsUnitTestTraits
 
 import scala.concurrent.Future
 
-class LookupControllerTest extends AwrsUnitTestTraits {
+class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
   val lookupFailure: JsValue = Json.parse( """{"reason": "Generic test reason"}""")
   val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
@@ -42,7 +44,7 @@ class LookupControllerTest extends AwrsUnitTestTraits {
 
   object TestLookupController extends LookupController(environment, controllerComponents, awrsMetrics, mockEtmpLookupService, loggingUtils)
 
-  "Lookup Controller " should {
+  "Lookup Controller " must {
 
     "lookup awrs entry from HODS when passed a valid awrs reference" in {
       when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(businessJson))))
@@ -106,11 +108,6 @@ class LookupControllerTest extends AwrsUnitTestTraits {
       status(result) shouldBe NOT_FOUND
     }
 
-
-
-    /*
-    *
-    */
     "lookup awrs entry from HODS for a company name" in {
       when(mockEtmpLookupService.lookupByName(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(byNameJson))))
       val result = TestLookupController.lookupByName(testRefNo).apply(FakeRequest())

@@ -1,3 +1,4 @@
+import sbt.Keys.scalacOptions
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin, _}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
@@ -22,6 +23,8 @@ lazy val scoverageSettings = {
   )
 }
 
+val silencerVersion = "1.7.0"
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin,SbtArtifactory) ++ plugins : _*)
   .settings(playSettings ++ scoverageSettings: _*)
@@ -41,7 +44,13 @@ lazy val microservice = Project(appName, file("."))
     Keys.fork in IntegrationTest := false,
     unmanagedSourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
     addTestReportOption(IntegrationTest, "int-test-reports"),
-    parallelExecution in IntegrationTest := false)
+    parallelExecution in IntegrationTest := false,
+    scalacOptions += "-P:silencer:pathFilters=views;routes",
+    libraryDependencies ++= Seq(
+      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
+      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+    )
+  )
   .settings(resolvers ++= Seq(
     Resolver.bintrayRepo("hmrc", "releases"),
     Resolver.jcenterRepo

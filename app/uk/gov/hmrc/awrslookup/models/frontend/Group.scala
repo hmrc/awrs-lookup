@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json.{JsResult, JsValue, Json, Reads}
-import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
+import play.api.libs.json.Json
 
 case class Group(awrsRef: String,
                  registrationDate: Option[String] = None,
