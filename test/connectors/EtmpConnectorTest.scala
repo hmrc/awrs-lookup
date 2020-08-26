@@ -53,7 +53,7 @@ class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
       val lookupSuccess = AwrsTestJson.businessJson
       val awrsRefNo = testRefNo
       implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
       val result = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
@@ -62,7 +62,7 @@ class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
       val lookupSuccess = AwrsTestJson.businessJson
       val businessName = testBusinessName
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(lookupSuccess))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
       val result = TestEtmpConnector.lookupByName(businessName)
       await(result).json shouldBe lookupSuccess
     }
