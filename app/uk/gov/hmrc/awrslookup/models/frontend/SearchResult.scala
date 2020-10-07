@@ -22,23 +22,10 @@ case class SearchResult(results: List[AwrsEntry])
 
 object SearchResult {
 
-  def etmpByUrnReader(implicit environment: play.api.Environment): Reads[SearchResult] = new Reads[SearchResult] {
-    def reads(js: JsValue): JsResult[SearchResult] =
-      for {
-        result <- js.validate[AwrsEntry](AwrsEntry.etmpReader)
-      } yield {
-        SearchResult(results = List(result))
-      }
-  }
-
-  def etmpByNameReader(implicit environment: play.api.Environment): Reads[SearchResult] = new Reads[SearchResult] {
-    def reads(js: JsValue): JsResult[SearchResult] = {
-      for {
-        result <- (js \ "registrations").validate[List[AwrsEntry]](Reads.list(AwrsEntry.etmpReader))
-      } yield {
-        SearchResult(results = result)
-      }
-    }
+  def etmpByUrnReader(implicit environment: play.api.Environment): Reads[SearchResult] = (js: JsValue) => for {
+    result <- js.validate[AwrsEntry](AwrsEntry.etmpReader)
+  } yield {
+    SearchResult(results = List(result))
   }
 
   implicit val frontEndFormatter = Json.format[SearchResult]

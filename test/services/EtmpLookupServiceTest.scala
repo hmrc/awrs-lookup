@@ -86,12 +86,5 @@ class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Mocki
       val result = TestEtmpLookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
     }
-
-    "successfully lookup an entry when passed a valid business name" in {
-      val businessName = testBusinessName
-      when(mockEtmpConnector.lookupByName(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
-      val result = TestEtmpLookupService.lookupByName(businessName)
-      await(result).status shouldBe OK
-    }
   }
 }

@@ -20,5 +20,4 @@ object ApiType extends Enumeration {
   type ApiType = Value
 
   val LookupByURN = Value
-  val LookupByName = Value
 }

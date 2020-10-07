@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
-import java.net.URLEncoder
-
 import javax.inject.Inject
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.logging.Authorization
@@ -33,14 +31,9 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClien
   lazy val serviceURL: String = config.baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
   val lookupByUrnURI = "/lookup/id/"
-  val lookupByNameURI = "/lookup/name/"
 
   val urlHeaderEnvironment: String = config.getConfString("etmp-hod.environment", "")
   val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
-
-  private def encode(url: String) = {
-    URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20")
-  }
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
     val future: Future[A] = http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
@@ -57,9 +50,4 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClien
   def lookupByUrn(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET( s"""$serviceURL$baseURI$lookupByUrnURI$awrsRef""")
   }
-
-  def lookupByName(queryString: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$lookupByNameURI${encode(queryString)}""")
-  }
-
 }
