@@ -27,15 +27,15 @@ class AwrsLookupMetrics @Inject()() {
   val metricRegistry = new MetricRegistry
 
   val timers = Map(
-    ApiType.LookupByURN -> metricRegistry.timer("etmp-lookup-by-urn-response-timer"),
+    ApiType.LookupByURN -> metricRegistry.timer("etmp-lookup-by-urn-response-timer")
   )
 
   val successCounters = Map(
-    ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-success"),
+    ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-success")
   )
 
   val failedCounters = Map(
-    ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-failed"),
+    ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-failed")
   )
 
   def startTimer(api: ApiType): Context = timers(api).time()
