@@ -107,11 +107,5 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
-
-    "lookup awrs entry from HODS for a company name" in {
-      when(mockEtmpLookupService.lookupByName(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, byNameJson.toString)))
-      val result = TestLookupController.lookupByName(testRefNo).apply(FakeRequest())
-      status(result) shouldBe OK
-    }
   }
 }

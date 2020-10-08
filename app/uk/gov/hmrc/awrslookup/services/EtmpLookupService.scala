@@ -33,12 +33,4 @@ class EtmpLookupService @Inject()(etmpConnector: EtmpConnector) {
         }
     }
 
-  def lookupByName(queryString: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
-    etmpConnector.lookupByName(queryString) map {
-      response =>
-        response.status match {
-          case _ => response
-        }
-    }
-
 }
