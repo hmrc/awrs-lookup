@@ -18,7 +18,7 @@ package uk.gov.hmrc.awrslookup.connectors
 
 import javax.inject.Inject
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
-import uk.gov.hmrc.http.logging.Authorization
+import uk.gov.hmrc.http.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient

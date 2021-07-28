@@ -13,7 +13,7 @@ object AppDependencies {
   val compile = Seq(
 
     ws,
-    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.25.0",
+    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "5.2.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "com.typesafe.play" %% "play-json-joda" % "2.6.14"
   )
@@ -27,7 +27,8 @@ object AppDependencies {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % scope,
-        "org.pegdown" % "pegdown" % pegdownVersion % scope,
+        "uk.gov.hmrc" %% "bootstrap-test-play-27" % "5.2.0" % scope,
+      "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.mockito" % "mockito-all" % mockitoVersion % scope
       )
