@@ -90,7 +90,11 @@ class LookupController @Inject()(val environment: Environment,
     }
   }
 
-  private def doAuditing(apiType: ApiType, action: String, message: String, eventType: String, incrementCounter: (ApiType) => Unit)(implicit hc: HeaderCarrier): Unit = {
+  private def doAuditing(apiType: ApiType,
+                         action: String,
+                         message: String,
+                         eventType: String,
+                         incrementCounter: ApiType => Unit)(implicit hc: HeaderCarrier): Unit = {
     incrementCounter(apiType)
     loggingUtils.audit(loggingUtils.auditLookupTxName, Map(action -> message), eventType)
   }

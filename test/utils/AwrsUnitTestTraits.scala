@@ -23,12 +23,13 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Environment
 import play.api.i18n.{I18nSupport, MessagesApi}
 import uk.gov.hmrc.http.HeaderCarrier
+import scala.language.implicitConversions
 
 import scala.concurrent.Future
 
 trait AwrsUnitTestTraits extends PlaySpec with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite with I18nSupport {
 
-  implicit lazy val hc = HeaderCarrier()
+  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 
   implicit def convertToOption[T](value: T): Option[T] = Some(value)
 
