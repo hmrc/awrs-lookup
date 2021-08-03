@@ -28,7 +28,7 @@ import play.api.test.Helpers._
 import play.libs.Json
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.services.EtmpLookupService
-import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson

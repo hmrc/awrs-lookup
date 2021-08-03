@@ -27,7 +27,7 @@ import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestConstants._
@@ -53,7 +53,7 @@ class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
       val lookupSuccess = AwrsTestJson.businessJson
       val awrsRefNo = testRefNo
       implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
       val result = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }

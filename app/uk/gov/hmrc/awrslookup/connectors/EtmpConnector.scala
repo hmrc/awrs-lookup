@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
-import javax.inject.Inject
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
-import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,15 +35,16 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClien
   val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
-    val future: Future[A] = http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
+    val headers = Seq(
+      "Environment" -> urlHeaderEnvironment,
+      "Authorization" -> urlHeaderAuthorization
+    )
+
+    val future: Future[A] = http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ExecutionContext.global)
     future.foreach {
       case e: Exception => loggingUtils.err(s"get request failed: url=$url\ne=$e\n")
     }
     future
-  }
-
-  def createHeaderCarrier(headerCarrier: HeaderCarrier): HeaderCarrier = {
-    headerCarrier.withExtraHeaders("Environment" -> urlHeaderEnvironment).copy(authorization = Some(Authorization(urlHeaderAuthorization)))
   }
 
   def lookupByUrn(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
