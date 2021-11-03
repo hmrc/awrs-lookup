@@ -16,7 +16,7 @@
 
 package models
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 import utils.AwrsUnitTestTraits
