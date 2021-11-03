@@ -17,7 +17,7 @@
 package models
 
 import org.joda.time.DateTime
-import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
