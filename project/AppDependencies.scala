@@ -13,9 +13,9 @@ object AppDependencies {
   val compile = Seq(
 
     ws,
-    "uk.gov.hmrc"       %% "bootstrap-backend-play-28" % "5.24.0",
+    "uk.gov.hmrc"       %% "bootstrap-backend-play-28" % "5.25.0",
     "uk.gov.hmrc"       %% "domain"                    % domainVersion,
-    "com.typesafe.play" %% "play-json-joda"            % "2.9.2"
+    "com.typesafe.play" %% "play-json-joda"            % "2.9.3"
   )
 
   trait TestDependencies {
@@ -24,21 +24,21 @@ object AppDependencies {
   }
 
   object Test {
-    def apply() = new TestDependencies {
+    def apply(): Seq[sbt.ModuleID] = new TestDependencies {
       override lazy val test = Seq(
-        "uk.gov.hmrc"            %% "bootstrap-test-play-28" % "5.24.0"                 % scope,
+        "uk.gov.hmrc"            %% "bootstrap-test-play-28" % "5.25.0"                 % scope,
         "org.scalatestplus.play" %% "scalatestplus-play"     % scalaTestPlusPlayVersion % scope,
         "org.pegdown"            %  "pegdown"                % pegdownVersion           % scope,
         "com.typesafe.play"      %% "play-test"              % PlayVersion.current      % scope,
         "org.mockito"            %  "mockito-all"            % mockitoVersion           % scope,
-        "org.mockito"            %  "mockito-core"           % "4.5.1"                  % scope,
+        "org.mockito"            %  "mockito-core"           % "4.7.0"                  % scope,
         "org.scalatestplus"      %% "mockito-3-12"           % "3.2.10.0"               % scope
       )
     }.test
   }
 
   object IntegrationTest {
-    def apply() = new TestDependencies {
+    def apply(): Seq[sbt.ModuleID] = new TestDependencies {
 
       override lazy val scope: String = "it"
 
@@ -49,5 +49,5 @@ object AppDependencies {
     }.test
   }
 
-  def apply() = compile ++ Test() ++ IntegrationTest()
+  def apply(): Seq[ModuleID] = compile ++ Test() ++ IntegrationTest()
 }
