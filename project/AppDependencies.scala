@@ -28,10 +28,9 @@ object AppDependencies {
       override lazy val test = Seq(
         "uk.gov.hmrc"            %% "bootstrap-test-play-28" % "5.25.0"                 % scope,
         "org.scalatestplus.play" %% "scalatestplus-play"     % scalaTestPlusPlayVersion % scope,
-        "org.pegdown"            %  "pegdown"                % pegdownVersion           % scope,
         "com.typesafe.play"      %% "play-test"              % PlayVersion.current      % scope,
         "org.mockito"            %  "mockito-all"            % mockitoVersion           % scope,
-        "org.mockito"            %  "mockito-core"           % "4.7.0"                  % scope,
+        "org.mockito"            %  "mockito-core"           % "4.9.0"                  % scope,
         "org.scalatestplus"      %% "mockito-3-12"           % "3.2.10.0"               % scope
       )
     }.test
