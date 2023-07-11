@@ -21,8 +21,6 @@ lazy val scoverageSettings = {
   )
 }
 
-val silencerVersion = "1.7.1"
-
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins : _*)
   .settings(playSettings ++ scoverageSettings: _*)
@@ -31,7 +29,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(
-    scalaVersion := "2.12.11",
+    scalaVersion := "2.13.8",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true
   )
@@ -42,12 +40,7 @@ lazy val microservice = Project(appName, file("."))
     IntegrationTest / unmanagedSourceDirectories := (IntegrationTest / baseDirectory)(base => Seq(base / "it")).value,
     addTestReportOption(IntegrationTest, "int-test-reports"),
     IntegrationTest / parallelExecution := false,
-    scalacOptions += "-P:silencer:pathFilters=views;routes",
-    scalacOptions ++= Seq("-feature"),
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    )
+    scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s")
   )
   .settings(resolvers ++= Seq(
     Resolver.jcenterRepo
