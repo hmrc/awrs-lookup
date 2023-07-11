@@ -31,13 +31,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import play.api.libs.json.JodaReads._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 class LookupController @Inject()(val environment: Environment,
                                  controllerComponents: ControllerComponents,
                                  metrics: AwrsLookupMetrics,
                                  lookupService: EtmpLookupService,
-                                 loggingUtils: LoggingUtils) extends BackendController(controllerComponents) {
+                                 loggingUtils: LoggingUtils)(implicit ec: ExecutionContext) extends BackendController(controllerComponents) {
 
   val referenceNotFoundString = "AWRS reference not found"
 

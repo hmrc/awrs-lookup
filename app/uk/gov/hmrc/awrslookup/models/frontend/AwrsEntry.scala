@@ -33,7 +33,7 @@ trait AwrsEntry {
 }
 
 object AwrsEntry {
-  
+
   def unapply(foo: AwrsEntry): Option[(String, JsValue)] = {
     foo match {
       case b: Business => Some(b.productPrefix -> Json.toJson(b)(Business.frontEndFormatter))

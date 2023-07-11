@@ -22,10 +22,10 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClient, loggingUtils: LoggingUtils) extends RawResponseReads {
+class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClient, loggingUtils: LoggingUtils)(implicit ec: ExecutionContext)
+  extends RawResponseReads {
 
   lazy val serviceURL: String = config.baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
@@ -34,13 +34,13 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClien
   val urlHeaderEnvironment: String = config.getConfString("etmp-hod.environment", "")
   val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] = {
+  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
     val headers = Seq(
       "Environment" -> urlHeaderEnvironment,
       "Authorization" -> urlHeaderAuthorization
     )
 
-    val future: Future[A] = http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ExecutionContext.global)
+    val future: Future[A] = http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ec)
     future.foreach {
       case e: Exception => loggingUtils.err(s"get request failed: url=$url\ne=$e\n")
       case _ => None
