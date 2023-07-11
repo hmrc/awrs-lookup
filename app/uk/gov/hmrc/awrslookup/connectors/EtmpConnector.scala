@@ -43,6 +43,7 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: DefaultHttpClien
     val future: Future[A] = http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ExecutionContext.global)
     future.foreach {
       case e: Exception => loggingUtils.err(s"get request failed: url=$url\ne=$e\n")
+      case _ => None
     }
     future
   }
