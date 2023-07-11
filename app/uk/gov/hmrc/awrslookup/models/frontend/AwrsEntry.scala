@@ -33,12 +33,13 @@ trait AwrsEntry {
 }
 
 object AwrsEntry {
+  
   def unapply(foo: AwrsEntry): Option[(String, JsValue)] = {
-    val (prod: Product, sub) = foo match {
-      case b: Business => (b, Json.toJson(b)(Business.frontEndFormatter))
-      case b: Group => (b, Json.toJson(b)(Group.frontEndFormatter))
+    foo match {
+      case b: Business => Some(b.productPrefix -> Json.toJson(b)(Business.frontEndFormatter))
+      case b: Group => Some(b.productPrefix -> Json.toJson(b)(Group.frontEndFormatter))
+      case _ => None
     }
-    Some(prod.productPrefix -> sub)
   }
 
   def apply(`class`: String, data: JsValue): AwrsEntry = {
