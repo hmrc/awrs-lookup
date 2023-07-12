@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package services
 
 import java.util.UUID
-
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -33,11 +32,12 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 

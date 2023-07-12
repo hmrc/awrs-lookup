@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import utils.AwrsTestConstants._
 import utils.AwrsTestJson._
 import utils.AwrsUnitTestTraits
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
@@ -41,6 +41,7 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
   val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val awrsMetrics: AwrsLookupMetrics = app.injector.instanceOf[AwrsLookupMetrics]
   val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   object TestLookupController extends LookupController(environment, controllerComponents, awrsMetrics, mockEtmpLookupService, loggingUtils)
 

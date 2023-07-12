@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ package uk.gov.hmrc.awrslookup.services
 import javax.inject.Inject
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-class EtmpLookupService @Inject()(etmpConnector: EtmpConnector) {
+class EtmpLookupService @Inject()(etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
 
   def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.lookupByUrn(awrsRefNo) map {

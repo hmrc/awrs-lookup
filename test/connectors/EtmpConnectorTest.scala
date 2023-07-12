@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package connectors
 
 import java.util.UUID
-
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -33,13 +32,14 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestConstants._
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
 
   val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
   val servicesConfig: ServicesConfig = app.injector.instanceOf[ServicesConfig]
   val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   object TestEtmpConnector extends EtmpConnector(servicesConfig, mockWSHttp, loggingUtils)
 
