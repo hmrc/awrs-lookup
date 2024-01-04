@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import play.api.libs.json._
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 
@@ -73,7 +73,7 @@ object AwrsStatus {
 
     def isDeregDateInTheFuture(endDate: Option[String]): Boolean =
       endDate match {
-        case Some(date) => DateTime.parse(date, DateTimeFormat.forPattern(EtmpDateReader.frontEndDatePattern)).isAfter(DateTime.now())
+        case Some(date) => LocalDate.parse(date, DateTimeFormatter.ofPattern(EtmpDateReader.frontEndDatePattern)).isAfter(LocalDate.now())
         case _ => false // TODO should never happen but should we throw an exception instead?
       }
 

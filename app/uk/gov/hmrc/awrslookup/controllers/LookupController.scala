@@ -18,7 +18,7 @@ package uk.gov.hmrc.awrslookup.controllers
 
 import javax.inject.Inject
 import metrics.AwrsLookupMetrics
-import org.joda.time.DateTime
+import java.time.LocalDate
 import play.api.Environment
 import play.api.libs.json.{JsSuccess, Json}
 import play.api.mvc._
@@ -29,7 +29,6 @@ import uk.gov.hmrc.awrslookup.services.EtmpLookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import play.api.libs.json.JodaReads._
 
 import scala.concurrent.ExecutionContext
 
@@ -55,10 +54,10 @@ class LookupController @Inject()(val environment: Environment,
     lookupResponse.status match {
       case OK =>
         val status = (lookupResponse.json \ "awrsStatus").validate[String]
-        val endDate = (lookupResponse.json \ "endDate").validate[DateTime]
-        val earliestDate = DateTime.parse("2017-04-01")
+        val endDate = (lookupResponse.json \ "endDate").validate[LocalDate]
+        val earliestDate = LocalDate.parse("2017-04-01")
         (status, endDate) match {
-          case (_: JsSuccess[String], _: JsSuccess[DateTime]) =>
+          case (_: JsSuccess[String], _: JsSuccess[LocalDate]) =>
             if (status.get.toLowerCase != "approved" && (endDate.get.isBefore(earliestDate) || endDate.get == earliestDate)) {
               doAuditing(apiType, "Search Result", "success - capped (Prior 01/04/2017)", loggingUtils.eventTypeSuccess, metrics.incrementSuccessCounter)
               NotFound(referenceNotFoundString)
