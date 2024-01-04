@@ -14,8 +14,7 @@ object AppDependencies {
 
     ws,
     "uk.gov.hmrc"       %% "bootstrap-backend-play-28" % "7.19.0",
-    "uk.gov.hmrc"       %% "domain"                    % domainVersion,
-    "com.typesafe.play" %% "play-json-joda"            % "2.9.4"
+    "uk.gov.hmrc"       %% "domain"                    % domainVersion
   )
 
   trait TestDependencies {

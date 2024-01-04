@@ -16,7 +16,7 @@
 
 package models
 
-import org.joda.time.DateTime
+import java.time.LocalDate
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
@@ -24,6 +24,8 @@ import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 import uk.gov.hmrc.awrslookup.models.frontend.{AwrsStatus, Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 import utils.TestUtil._
+
+import java.time.format.DateTimeFormatter
 
 class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
 
@@ -59,8 +61,26 @@ class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
       businessObject.results.head.get.info.get.address.get.addressCountry shouldBe None
     }
 
-    "Correctly format the date fields" in {
+    "Correctly format when only the date is provided" in {
       val date = "2017-4-1"
+      val expected = "01 April 2017"
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.registrationDate.get shouldBe expected
+      businessObject.results.head.get.registrationEndDate.get shouldBe expected
+    }
+
+    "Correctly format when only the date is provided with leading zeros for month and day" in {
+      val date = "2017-04-01"
+      val expected = "01 April 2017"
+      val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
+      val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
+      businessObject.results.head.get.registrationDate.get shouldBe expected
+      businessObject.results.head.get.registrationEndDate.get shouldBe expected
+    }
+
+    "Correctly format the date and time fields" in {
+      val date = "2017-04-01T00:00:00.000+01:00"
       val expected = "01 April 2017"
       val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStartDate(date).updateEtmpEndDate(date)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
@@ -104,7 +124,7 @@ class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
     "correctly convert the 'De-registered' etmp status to the frontend 'DeRegistered' status when the dereg date has been reached" in {
       val etmpStatus = "De-registered"
       val expectedStatus = AwrsStatus.DeRegistered
-      val pastDate = DateTime.now().minusDays(1).toString(EtmpDateReader.etmpDatePattern)
+      val pastDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern(EtmpDateReader.etmpDatePattern))
       val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus).updateEtmpEndDate(pastDate)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
       businessObject.results.head.get.status.get shouldBe expectedStatus
@@ -113,7 +133,7 @@ class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
     "correctly convert the 'De-registered' etmp status to the frontend 'Approved' status when the dereg date has not been reached" in {
       val etmpStatus = "De-registered"
       val expectedStatus = AwrsStatus.Approved
-      val futureDate = DateTime.now().plusDays(1).toString(EtmpDateReader.etmpDatePattern)
+      val futureDate = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern(EtmpDateReader.etmpDatePattern))
       val updatedBusinessJsonString = AwrsTestJson.businessJsonString.updateEtmpStatus(etmpStatus).updateEtmpEndDate(futureDate)
       val businessObject = Json.parse(updatedBusinessJsonString).as[SearchResult](SearchResult.etmpByUrnReader)
       businessObject.results.head.get.status.get shouldBe expectedStatus
