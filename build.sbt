@@ -27,19 +27,12 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
+    scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s"),
     libraryDependencies ++= appDependencies,
     retrieveManaged := true
   )
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(
-    IntegrationTest / Keys.fork := false,
-    IntegrationTest / unmanagedSourceDirectories := (IntegrationTest / baseDirectory)(base => Seq(base / "it")).value,
-    addTestReportOption(IntegrationTest, "int-test-reports"),
-    IntegrationTest / parallelExecution := false,
-    scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s")
-  )
+
   .settings(resolvers ++= Seq(
     Resolver.jcenterRepo
   ))
