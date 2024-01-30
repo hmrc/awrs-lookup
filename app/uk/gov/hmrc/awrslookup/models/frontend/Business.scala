@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class Business(awrsRef: String,
                     registrationDate: Option[String] = None,
@@ -27,5 +27,5 @@ case class Business(awrsRef: String,
 
 object Business {
 
-  implicit val frontEndFormatter = Json.format[Business]
+  implicit val frontEndFormatter: OFormat[Business] = Json.format[Business]
 }

@@ -28,5 +28,5 @@ object SearchResult {
     SearchResult(results = List(result))
   }
 
-  implicit val frontEndFormatter = Json.format[SearchResult]
+  implicit val frontEndFormatter: OFormat[SearchResult] = Json.format[SearchResult]
 }

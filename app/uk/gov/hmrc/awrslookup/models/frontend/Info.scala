@@ -43,5 +43,5 @@ object Info {
     }
   }
 
-  implicit val frontEndFormatter = Json.format[Info]
+  implicit val frontEndFormatter: OFormat[Info] = Json.format[Info]
 }

@@ -17,9 +17,8 @@
 package uk.gov.hmrc.awrslookup.models.utils
 
 import java.io.InputStream
-
 import play.api.Environment
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OFormat}
 
 import scala.io.Source
 
@@ -28,7 +27,7 @@ object CountryCodes {
   case class Country(country: String, countryCode: String)
 
   object Country {
-    implicit val formats = Json.format[Country]
+    implicit val formats: OFormat[Country] = Json.format[Country]
   }
 
   def jsonInputStream(implicit environment: Environment): Option[InputStream] = environment.resourceAsStream("country-code.json")

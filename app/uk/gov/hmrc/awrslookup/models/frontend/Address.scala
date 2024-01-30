@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json.{JsResult, JsValue, Json, Reads}
+import play.api.libs.json.{JsResult, JsValue, Json, OFormat, Reads}
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 
 case class Address(addressLine1: Option[String] = None,
@@ -42,5 +42,5 @@ object Address {
       }
   }
 
-  implicit val frontEndFormatter = Json.format[Address]
+  implicit val frontEndFormatter: OFormat[Address] = Json.format[Address]
 }
