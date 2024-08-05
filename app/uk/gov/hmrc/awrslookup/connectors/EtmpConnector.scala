@@ -16,32 +16,43 @@
 
 package uk.gov.hmrc.awrslookup.connectors
 
-import uk.gov.hmrc.awrslookup.utils.LoggingUtils
+
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import play.api.http.Status.OK
+import uk.gov.hmrc.awrslookup.utils.LoggingUtils
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+import uk.gov.hmrc.http.HttpReads.Implicits._
+
 class EtmpConnector @Inject()(config: ServicesConfig, val http: HttpClientV2, loggingUtils: LoggingUtils)(implicit ec: ExecutionContext)
-  extends RawResponseReads {
+{
 
   private lazy val serviceURL: String = config.baseUrl("etmp-hod")
   private val baseURI = "/alcohol-wholesaler-register"
   private val lookupByUrnURI = "/lookup/id/"
 
-  @inline private def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
+  private val urlHeaderEnvironment: String = config.getConfString("etmp-hod.environment", "")
+  private val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  def lookupByUrn(awrsRef: String): Future[HttpResponse] = {
+    val lookUpByUrnUrl = s"""$serviceURL$baseURI$lookupByUrnURI$awrsRef"""
 
-    val future: Future[A] = http.get(url"url")(hc).execute(rds, ec)
-    future.foreach {
-      case e: Exception => loggingUtils.err(s"get request failed: url=$url\ne=$e\n")
-      case _ => None
-    }
-    future
-  }
-
-  def lookupByUrn(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$lookupByUrnURI$awrsRef""")
+    http.get(url"${lookUpByUrnUrl}")(hc)
+      .setHeader("Environment" -> urlHeaderEnvironment)
+      .setHeader("Authorization" -> urlHeaderAuthorization)
+      .execute[HttpResponse]
+      .map {
+        response =>
+          response.status match {
+            case OK => response
+            case _ => loggingUtils.err(s"get request failed: url=$lookUpByUrnUrl\ne=${response.body}\n")
+              response
+          }
+      }
   }
 }
