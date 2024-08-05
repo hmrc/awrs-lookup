@@ -40,9 +40,7 @@ class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Conne
 
   implicit val httpReads: HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
 
-  class Setup {
-    val connector: EtmpConnector = new EtmpConnector(servicesConfig, mockHttpClient, loggingUtils)
-  }
+  object TestEtmpConnector extends EtmpConnector(servicesConfig, mockHttpClient, loggingUtils)
 
   override def beforeEach(): Unit = {
     reset(mockHttpClient)
@@ -52,7 +50,7 @@ class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Conne
 
   "EtmpConnector" must {
 
-    "lookup an application with a valid reference number " in new Setup {
+    "lookup an application with a valid reference number " in {
       val lookupSuccess: JsValue = AwrsTestJson.businessJson
       val awrsRefNo: String = testRefNo
 
@@ -61,7 +59,7 @@ class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Conne
       when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
 
-      val result: Future[HttpResponse] = connector.lookupByUrn(awrsRefNo)
+      val result: Future[HttpResponse] = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json must  be(lookupSuccess)
     }
 
