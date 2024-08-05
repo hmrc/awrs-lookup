@@ -1,5 +1,5 @@
 import sbt.Keys.scalacOptions
-import uk.gov.hmrc.DefaultBuildSettings._
+import uk.gov.hmrc.DefaultBuildSettings.*
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
@@ -7,7 +7,7 @@ val appName: String = "awrs-lookup"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
 lazy val plugins : Seq[Plugins] = Seq.empty
-lazy val playSettings : Seq[Setting[_]] = Seq.empty
+lazy val playSettings : Seq[Setting[?]] = Seq.empty
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
@@ -21,11 +21,11 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins : _*)
-  .settings(playSettings ++ scoverageSettings: _*)
+  .enablePlugins((Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins) *)
+  .settings((playSettings ++ scoverageSettings) *)
   .settings(majorVersion := 0)
-  .settings(scalaSettings: _*)
-  .settings(defaultSettings(): _*)
+  .settings(scalaSettings *)
+  .settings(defaultSettings() *)
   .settings(
     scalaVersion := "2.13.12",
     scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s"),
