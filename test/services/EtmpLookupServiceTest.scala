@@ -16,9 +16,11 @@
 
 package services
 
+import org.mockito.ArgumentMatchers.any
+
 import java.util.UUID
-import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -47,7 +49,7 @@ class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Mocki
 
     "successfully lookup an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo
-      when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockEtmpConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe OK
     }
@@ -75,14 +77,14 @@ class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Mocki
                                   }
                                 }"""
       val lookupSuccess = AwrsTestJson.businessJson
-      when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
+      when(mockEtmpConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
       val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
       Json.parse(await(result).body) shouldBe Json.parse(expectedOutput)
     }
 
     "return Not Found when passed an reference number that does not exist" in {
       val invalidAwrsRefNo = invalidRef
-      when(mockEtmpConnector.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
+      when(mockEtmpConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
       val result = TestEtmpLookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
     }

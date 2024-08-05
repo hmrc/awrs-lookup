@@ -16,32 +16,31 @@
 
 package connectors
 
-import java.util.UUID
-import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
 import play.api.http.Status._
-import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.http.{SessionId, _}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestConstants._
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
+class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits with ConnectorTest{
 
-  val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
+  val mockWSHttp: HttpClientV2 = mock[HttpClientV2]
   val servicesConfig: ServicesConfig = app.injector.instanceOf[ServicesConfig]
   val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  object TestEtmpConnector extends EtmpConnector(servicesConfig, mockWSHttp, loggingUtils)
+  class Setup extends ConnectorTest{
+    val TestEtmpConnector: EtmpConnector = new EtmpConnector(servicesConfig, mockHttpClient, loggingUtils)
+  }
 
   before {
     reset(mockWSHttp)
@@ -49,12 +48,11 @@ class EtmpConnectorTest extends PlaySpec with AwrsUnitTestTraits {
 
   "EtmpConnector" must {
 
-    "lookup an application with a valid reference number " in {
+    "lookup an application with a valid reference number " in new Setup {
       val lookupSuccess = AwrsTestJson.businessJson
       val awrsRefNo = testRefNo
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
+      when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
       val result = TestEtmpConnector.lookupByUrn(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }

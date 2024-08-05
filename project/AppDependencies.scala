@@ -25,10 +25,10 @@ object AppDependencies {
     def apply(): Seq[sbt.ModuleID] = new TestDependencies {
       override lazy val test: Seq[sbt.ModuleID] = Seq(
         "uk.gov.hmrc"            %% "bootstrap-test-play-30" % bootstrapVersion         % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play"     % scalaTestPlusPlayVersion % scope,
-        "org.mockito"            %  "mockito-all"            % mockitoVersion           % scope,
-        "org.mockito"            %  "mockito-core"           % "5.11.0"                 % scope,
-        "org.scalatestplus"      %% "mockito-4-11"           % "3.2.18.0"               % scope
+//        "org.scalatestplus.play" %% "scalatestplus-play"     % scalaTestPlusPlayVersion % scope,
+//        "org.mockito"            %  "mockito-all"            % mockitoVersion           % scope,
+//        "org.mockito"            %  "mockito-core"           % "5.11.0"                 % scope,
+//        "org.scalatestplus"      %% "mockito-4-11"           % "3.2.18.0"               % scope
       )
     }.test
   }
