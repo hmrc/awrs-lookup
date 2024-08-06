@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.awrslookup.services
 
-import javax.inject.Inject
 import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
+import uk.gov.hmrc.http.HttpResponse
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 class EtmpLookupService @Inject()(etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
 
-  def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  def lookupByUrn(awrsRefNo: String): Future[HttpResponse] =
     etmpConnector.lookupByUrn(awrsRefNo) map {
       response =>
         response.status match {
