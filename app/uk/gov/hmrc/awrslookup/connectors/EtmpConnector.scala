@@ -42,7 +42,7 @@ class EtmpConnector @Inject()(config: ServicesConfig, val http: HttpClientV2, lo
   def lookupByUrn(awrsRef: String): Future[HttpResponse] = {
     val lookUpByUrnUrl = s"""$serviceURL$baseURI$lookupByUrnURI$awrsRef"""
 
-    http.get(url"${lookUpByUrnUrl}")(hc)
+    http.get(url"$lookUpByUrnUrl")(hc)
       .setHeader("Environment" -> urlHeaderEnvironment)
       .setHeader("Authorization" -> urlHeaderAuthorization)
       .execute[HttpResponse]
