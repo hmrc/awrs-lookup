@@ -24,17 +24,17 @@ import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 
 class AwrsLookupMetrics @Inject()() {
 
-  val metricRegistry = new MetricRegistry
+  private val metricRegistry = new MetricRegistry
 
-  val timers = Map(
+  private val timers = Map(
     ApiType.LookupByURN -> metricRegistry.timer("etmp-lookup-by-urn-response-timer")
   )
 
-  val successCounters = Map(
+  private val successCounters = Map(
     ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-success")
   )
 
-  val failedCounters = Map(
+  private val failedCounters = Map(
     ApiType.LookupByURN -> metricRegistry.counter("etmp-lookup-by-urn-failed")
   )
 

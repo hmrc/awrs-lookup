@@ -17,7 +17,7 @@
 package controllers
 
 import metrics.AwrsLookupMetrics
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
@@ -48,47 +48,59 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
   "Lookup Controller " must {
 
     "lookup awrs entry from HODS when passed a valid awrs reference" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
+      when(mockEtmpLookupService.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return NOT FOUND error from HODS when awrs entry is not found" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, lookupFailure.toString)))
+      when(mockEtmpLookupService.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return BAD REQUEST error from HODS when the request have not passed validation" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, lookupFailure.toString)))
+      when(mockEtmpLookupService.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe BAD_REQUEST
     }
 
     "return INTERNAL SERVER ERROR error from HODS when WS02 is experiencing problems" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return SERVICE UNAVAILABLE error from HODS when the service is unavilable" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
     "return INTERNAL SERVER ERROR error from HODS when any other error is encountered" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(GATEWAY_TIMEOUT, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return an entry with the correct dates when registration Date is prior to 01 April 2017" in {
-      val expectedOutput = "{\"results\":[{\"class\":\"Business\",\"data\":{\"awrsRef\":\"2345678\",\"registrationDate\":\"01 April 2017\",\"status\":\"04\",\"info\":{\"businessName\":\"companyName\",\"tradingName\":\"tradingName\",\"address\":{\"addressLine1\":\"addressLine1\",\"addressLine2\":\"addressLine2\",\"addressLine3\":\"addressLine3\",\"addressLine4\":\"addressLine4\",\"postcode\":\"TF3 XYZ\"}},\"registrationEndDate\":\"01 April 2017\"}}]}"
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      val expectedOutput = "{\"results\":[{" +
+        "\"class\":\"Business\",\"data\":{" +
+        "\"awrsRef\":\"2345678\"," +
+        "\"registrationDate\":\"01 April 2017\"," +
+        "\"status\":\"04\",\"" +
+        "info\":{\"businessName\":\"companyName\",\"tradingName\":\"tradingName\",\"" +
+        "address\":{" +
+        "\"addressLine1\":\"addressLine1\"," +
+        "\"addressLine2\":\"addressLine2\"," +
+        "\"addressLine3\":\"addressLine3\"," +
+        "\"addressLine4\":\"addressLine4\"," +
+        "\"postcode\":\"TF3 XYZ\"}}," +
+        "\"registrationEndDate\":\"01 April 2017\"}}]}"
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe OK
@@ -96,21 +108,21 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
     }
 
     "return a NOT FOUND when ETMP returns a deregistered business with date prior to 01 April 2017" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(OK, deRegisteredBusinessPriorToFirstApril.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return a NOT FOUND when ETMP returns a revoked business with date prior to 01 April 2017" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(OK, revokedBusinessPriorToFirstApril.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return a NOT FOUND when ETMP returns a revoked business with date of 01 April 2017" in {
-      when(mockEtmpLookupService.lookupByUrn(Matchers.any())(Matchers.any()))
+      when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(OK, revokedBusinessFirstApril.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
