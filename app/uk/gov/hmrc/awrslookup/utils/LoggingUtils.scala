@@ -105,6 +105,7 @@ class LoggingUtils @Inject() (auditable: Auditable) extends Logging {
       transactionName: String,
       detail:          Map[String, String],
       eventType:       String = ""
-    ): Unit = err(splunkToLogger(transactionName, detail, eventType))
+    ): Unit =
+    err(splunkToLogger(transactionName, detail, eventType))
 
 }
