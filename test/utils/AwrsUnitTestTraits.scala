@@ -21,7 +21,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Environment
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{ I18nSupport, MessagesApi }
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.language.implicitConversions
 

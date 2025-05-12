@@ -25,13 +25,14 @@ class CountryCodeTest extends PlaySpec with AwrsUnitTestTraits {
 
   "CountryCodeTest" must {
     "successfully convert a country code to a country" in {
-      CountryCodes.getCountry("GB") should be (Some("United Kingdom of Great Britain and Northern Ireland (the)"))
+      CountryCodes.getCountry("GB") should be(Some("United Kingdom of Great Britain and Northern Ireland (the)"))
     }
     "successfully convert a country code to a country containing special characters" in {
-      CountryCodes.getCountry("CI") should be (Some("Côte d'Ivoire"))
+      CountryCodes.getCountry("CI") should be(Some("Côte d'Ivoire"))
     }
     "return None if a country code is not found" in {
-      CountryCodes.getCountry("ZZ") should be (None)
+      CountryCodes.getCountry("ZZ") should be(None)
     }
   }
+
 }

@@ -15,9 +15,10 @@
  */
 
 package uk.gov.hmrc.awrslookup.models.etmp.formatters
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import play.api.libs.json.{JsResult, JsSuccess, JsValue, Reads}
+import play.api.libs.json.{ JsResult, JsSuccess, JsValue, Reads }
 import scala.util.Try
 
 // TODO remove this object/trait after 1st April
@@ -32,16 +33,18 @@ trait EtmpDateReaderTemp extends Reads[String] {
 
   val frontEndDatePattern = "dd MMMM yyyy"
 
-  val parseDate: JsResult[String] => LocalDate = (str: JsResult[String]) => Try(LocalDate.parse(str.get, DateTimeFormatter.ofPattern(etmpDatePattern))).fold(
-    _ => LocalDate.parse(str.get, DateTimeFormatter.ISO_OFFSET_DATE_TIME),
-    localDate => localDate
-  )
+  val parseDate: JsResult[String] => LocalDate = (str: JsResult[String]) =>
+    Try(LocalDate.parse(str.get, DateTimeFormatter.ofPattern(etmpDatePattern))).fold(
+      _         => LocalDate.parse(str.get, DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+      localDate => localDate
+    )
 
   val earliestPossibleDate: LocalDate = LocalDate.parse(earliestDateString, DateTimeFormatter.ofPattern(etmpDatePattern))
 
   override def reads(json: JsValue): JsResult[String] = {
-    val str = json.validate[String]
+    val str      = json.validate[String]
     val dateTime = parseDate(str)
     JsSuccess(dateTime.format(DateTimeFormatter.ofPattern(frontEndDatePattern)))
   }
+
 }

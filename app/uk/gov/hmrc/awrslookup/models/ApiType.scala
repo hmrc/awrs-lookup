@@ -17,7 +17,9 @@
 package uk.gov.hmrc.awrslookup.models
 
 object ApiType extends Enumeration {
+
   type ApiType = Value
 
   val LookupByURN = Value
+
 }

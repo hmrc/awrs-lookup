@@ -32,9 +32,9 @@ import uk.gov.hmrc.http.HttpResponse
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
-class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with ConnectorTest  {
+class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with ConnectorTest {
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
@@ -47,12 +47,12 @@ class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Conne
     "successfully lookup an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo
       when(mockEtmpConnector.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
-      val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
+      val result    = TestEtmpLookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe OK
     }
 
     "succesfully return an entry when passed a valid reference number" in {
-      val awrsRefNo = testRefNo
+      val awrsRefNo      = testRefNo
       val expectedOutput =
         """{
               "awrsRegistrationNumber" : "2345678",
@@ -73,17 +73,18 @@ class EtmpLookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Conne
                 }
               }
         }"""
-      val lookupSuccess = AwrsTestJson.businessJson
+      val lookupSuccess  = AwrsTestJson.businessJson
       when(mockEtmpConnector.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
-      val result = TestEtmpLookupService.lookupByUrn(awrsRefNo)
+      val result         = TestEtmpLookupService.lookupByUrn(awrsRefNo)
       Json.parse(await(result).body) shouldBe Json.parse(expectedOutput)
     }
 
     "return Not Found when passed an reference number that does not exist" in {
       val invalidAwrsRefNo = invalidRef
       when(mockEtmpConnector.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
-      val result = TestEtmpLookupService.lookupByUrn(invalidAwrsRefNo)
+      val result           = TestEtmpLookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
     }
   }
+
 }

@@ -15,6 +15,7 @@
  */
 
 package connectors
+
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -29,16 +30,20 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
-class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with ConnectorTest with BeforeAndAfterEach {
+class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest with BeforeAndAfterEach {
 
   val servicesConfig: ServicesConfig = mock[ServicesConfig]
-  val loggingUtils: LoggingUtils = mock[LoggingUtils]
+  val loggingUtils:   LoggingUtils   = mock[LoggingUtils]
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  implicit val httpReads: HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
+  implicit val httpReads: HttpReads[HttpResponse] = (
+      _:        String,
+      _:        String,
+      response: HttpResponse
+    ) => response
 
   object TestEtmpConnector extends EtmpConnector(servicesConfig, mockHttpClient, loggingUtils)
 
@@ -52,7 +57,7 @@ class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Conne
 
     "lookup an application with a valid reference number " in {
       val lookupSuccess: JsValue = AwrsTestJson.businessJson
-      val awrsRefNo: String = testRefNo
+      val awrsRefNo:     String  = testRefNo
 
       when(servicesConfig.baseUrl(any())).thenReturn("http://etmp-hod/")
 
@@ -60,7 +65,7 @@ class EtmpConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Conne
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
 
       val result: Future[HttpResponse] = TestEtmpConnector.lookupByUrn(awrsRefNo)
-      await(result).json must  be(lookupSuccess)
+      await(result).json must be(lookupSuccess)
     }
 
   }

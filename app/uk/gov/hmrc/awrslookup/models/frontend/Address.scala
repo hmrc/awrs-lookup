@@ -16,15 +16,18 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json.{JsResult, JsValue, Json, OFormat, Reads}
+import play.api.libs.json.{ JsResult, JsValue, Json, OFormat, Reads }
 import uk.gov.hmrc.awrslookup.models.utils.CountryCodes
 
-case class Address(addressLine1: Option[String] = None,
-                   addressLine2: Option[String] = None,
-                   addressLine3: Option[String] = None,
-                   addressLine4: Option[String] = None,
-                   postcode: Option[String] = None,
-                   addressCountry: Option[String] = None)
+case class Address(
+    addressLine1:   Option[String] = None,
+    addressLine2:   Option[String] = None,
+    addressLine3:   Option[String] = None,
+    addressLine4:   Option[String] = None,
+    postcode:       Option[String] = None,
+    addressCountry: Option[String] = None
+  )
+
 object Address {
 
   def etmpReader(implicit environment: play.api.Environment): Reads[Address] = new Reads[Address] {
@@ -34,13 +37,18 @@ object Address {
         addressLine2 <- (js \ "addressLine2").validateOpt[String]
         addressLine3 <- (js \ "addressLine3").validateOpt[String]
         addressLine4 <- (js \ "addressLine4").validateOpt[String]
-        postcode <- (js \ "postcode").validateOpt[String]
-        countryCode <- (js \ "country").validateOpt[String]
-      } yield {
-        Address(postcode = postcode, addressLine1 = addressLine1, addressLine2 = addressLine2, addressLine3 = addressLine3,
-          addressLine4 = addressLine4, addressCountry = countryCode.filterNot(_ == "GB").flatMap(CountryCodes.getCountry))
-      }
+        postcode     <- (js \ "postcode").validateOpt[String]
+        countryCode  <- (js \ "country").validateOpt[String]
+      } yield Address(
+        postcode       = postcode,
+        addressLine1   = addressLine1,
+        addressLine2   = addressLine2,
+        addressLine3   = addressLine3,
+        addressLine4   = addressLine4,
+        addressCountry = countryCode.filterNot(_ == "GB").flatMap(CountryCodes.getCountry)
+      )
   }
 
   implicit val frontEndFormatter: OFormat[Address] = Json.format[Address]
+
 }
