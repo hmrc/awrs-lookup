@@ -71,3 +71,7 @@ and possible responses are:-
 | GET | /awrs-lookup/query/urn/XXAW00000123462 |
 | GET | /awrs-lookup/query/name/Bricks%20Ltd |
 
+
+## License
+To format the code please run `sbt scalafmtAll`
+This check is run on compile, test and commit. 
