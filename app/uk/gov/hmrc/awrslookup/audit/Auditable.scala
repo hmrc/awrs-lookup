@@ -16,30 +16,33 @@
 
 package uk.gov.hmrc.awrslookup.audit
 
-import javax.inject.{Inject, Named}
+import javax.inject.{ Inject, Named }
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
+import uk.gov.hmrc.play.audit.model.{ Audit, DataEvent }
 
 import scala.concurrent.ExecutionContext
 
-class Auditable @Inject()(auditConnector: AuditConnector, @Named("appName") val appName: String)(implicit ec: ExecutionContext) {
+class Auditable @Inject() (auditConnector: AuditConnector, @Named("appName") val appName: String)(implicit ec: ExecutionContext) {
 
   def audit: Audit = new Audit(appName, auditConnector)
 
-  def sendDataEvent(transactionName: String,
-                    path: String = "N/A",
-                    tags: Map[String, String] = Map.empty[String, String],
-                    detail: Map[String, String],
-                    eventType: String)
-                   (implicit hc: HeaderCarrier): Unit =
+  def sendDataEvent(
+      transactionName: String,
+      path:            String              = "N/A",
+      tags:            Map[String, String] = Map.empty[String, String],
+      detail:          Map[String, String],
+      eventType:       String
+    )(implicit hc:     HeaderCarrier
+    ): Unit =
     audit.sendDataEvent(
       DataEvent(
         appName,
         auditType = eventType,
-        tags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags(transactionName, path) ++ tags,
-        detail = AuditExtensions.auditHeaderCarrier(hc).toAuditDetails(detail.toSeq: _*)
+        tags      = AuditExtensions.auditHeaderCarrier(hc).toAuditTags(transactionName, path) ++ tags,
+        detail    = AuditExtensions.auditHeaderCarrier(hc).toAuditDetails(detail.toSeq: _*)
       )
     )
+
 }

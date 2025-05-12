@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{ Json, OFormat }
 
-case class Business(awrsRef: String,
-                    registrationDate: Option[String] = None,
-                    status: AwrsStatus,
-                    info: Info,
-                    registrationEndDate: Option[String] = None
-                   ) extends AwrsEntry
+case class Business(
+    awrsRef:             String,
+    registrationDate:    Option[String] = None,
+    status:              AwrsStatus,
+    info:                Info,
+    registrationEndDate: Option[String] = None
+  ) extends AwrsEntry
 
 object Business {
 
   implicit val frontEndFormatter: OFormat[Business] = Json.format[Business]
+
 }

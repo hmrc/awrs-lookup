@@ -22,15 +22,15 @@ object AwrsTestJson extends AwrsTestJson
 
 trait AwrsTestJson extends AwrsPathConstants {
 
-  lazy val groupJsonString = load(groupJsonPath)
+  lazy val groupJsonString    = load(groupJsonPath)
   lazy val businessJsonString = load(businessJsonPath)
-  lazy val byNameJsonString = load(byNameJsonPath)
+  lazy val byNameJsonString   = load(byNameJsonPath)
 
-  lazy val groupJson = loadAndParseJson(groupJsonPath)
-  lazy val businessJson = loadAndParseJson(businessJsonPath)
+  lazy val groupJson                             = loadAndParseJson(groupJsonPath)
+  lazy val businessJson                          = loadAndParseJson(businessJsonPath)
   lazy val deRegisteredBusinessPriorToFirstApril = loadAndParseJson(deRegisteredBusinessPriorToFirstAprilPath)
-  lazy val revokedBusinessPriorToFirstApril = loadAndParseJson(revokedBusinessPriorToFirstAprilPath)
-  lazy val revokedBusinessFirstApril = loadAndParseJson(revokedBusinessFirstAprilPath)
-  lazy val byNameJson = loadAndParseJson(byNameJsonPath)
+  lazy val revokedBusinessPriorToFirstApril      = loadAndParseJson(revokedBusinessPriorToFirstAprilPath)
+  lazy val revokedBusinessFirstApril             = loadAndParseJson(revokedBusinessFirstAprilPath)
+  lazy val byNameJson                            = loadAndParseJson(byNameJsonPath)
 
 }

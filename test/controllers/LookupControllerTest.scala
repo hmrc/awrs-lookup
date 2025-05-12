@@ -21,7 +21,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -33,15 +33,16 @@ import utils.AwrsTestConstants._
 import utils.AwrsTestJson._
 import utils.AwrsUnitTestTraits
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
-  val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
-  val lookupFailure: JsValue = Json.parse( """{"reason": "Generic test reason"}""")
-  val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val awrsMetrics: AwrsLookupMetrics = app.injector.instanceOf[AwrsLookupMetrics]
-  val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
+  val mockEtmpLookupService: EtmpLookupService    = mock[EtmpLookupService]
+  val lookupFailure:         JsValue              = Json.parse("""{"reason": "Generic test reason"}""")
+  val controllerComponents:  ControllerComponents = app.injector.instanceOf[ControllerComponents]
+  val awrsMetrics:           AwrsLookupMetrics    = app.injector.instanceOf[AwrsLookupMetrics]
+  val loggingUtils:          LoggingUtils         = app.injector.instanceOf[LoggingUtils]
+  implicit val ec:           ExecutionContext     = scala.concurrent.ExecutionContext.Implicits.global
 
   object TestLookupController extends LookupController(environment, controllerComponents, awrsMetrics, mockEtmpLookupService, loggingUtils)
 
@@ -102,7 +103,7 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
         "\"registrationEndDate\":\"01 April 2017\"}}]}"
       when(mockEtmpLookupService.lookupByUrn(any()))
         .thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
-      val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+      val result         = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedOutput
     }
@@ -128,4 +129,5 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
       status(result) shouldBe NOT_FOUND
     }
   }
+
 }

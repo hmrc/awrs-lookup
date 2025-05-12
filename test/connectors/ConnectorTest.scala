@@ -16,25 +16,26 @@
 
 package connectors
 
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import play.api.test.{ DefaultAwaitTimeout, FutureAwaits }
 import play.api.libs.json._
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, SessionId}
+import uk.gov.hmrc.http.client.{ HttpClientV2, RequestBuilder }
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads, SessionId }
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 
 import java.net.URL
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSugar {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-  val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
-  val requestBuilder: RequestBuilder = mock[RequestBuilder]
+  implicit val hc:              HeaderCarrier  = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  val mockHttpClient:           HttpClientV2   = mock[HttpClientV2]
+  val requestBuilder:           RequestBuilder = mock[RequestBuilder]
   when(mockHttpClient.get(any[URL])(any[HeaderCarrier])).thenReturn(requestBuilder)
   when(requestBuilder.withBody(any[JsValue])(any(), any(), any())).thenReturn(requestBuilder)
   when(requestBuilder.setHeader(any())).thenReturn(requestBuilder)
-  def requestBuilderExecute[A]: Future[A] = requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
+  def requestBuilderExecute[A]: Future[A]      = requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
+
 }

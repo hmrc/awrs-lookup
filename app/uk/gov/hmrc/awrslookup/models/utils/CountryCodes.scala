@@ -18,7 +18,7 @@ package uk.gov.hmrc.awrslookup.models.utils
 
 import java.io.InputStream
 import play.api.Environment
-import play.api.libs.json.{JsValue, Json, OFormat}
+import play.api.libs.json.{ JsValue, Json, OFormat }
 
 import scala.io.Source
 
@@ -27,25 +27,25 @@ object CountryCodes {
   case class Country(country: String, countryCode: String)
 
   object Country {
+
     implicit val formats: OFormat[Country] = Json.format[Country]
+
   }
 
   def jsonInputStream(implicit environment: Environment): Option[InputStream] = environment.resourceAsStream("country-code.json")
 
-  private def json(implicit environment: Environment): JsValue = {
+  private def json(implicit environment: Environment): JsValue =
     jsonInputStream match {
       case Some(inputStream) => Json.parse(Source.fromInputStream(inputStream, "UTF-8").mkString)
-      case _ => throw new Exception("Country codes file not found")
+      case _                 => throw new Exception("Country codes file not found")
     }
-  }
 
   private def countryCodesMap(implicit environment: Environment): Map[String, String] = {
     val countryCodeList = json.validate[List[Country]].get
     countryCodeList.map(country => (country.countryCode, country.country)).toMap
   }
 
-  def getCountry(countryCode: String)(implicit environment: Environment): Option[String] = {
+  def getCountry(countryCode: String)(implicit environment: Environment): Option[String] =
     countryCodesMap.get(countryCode)
-  }
 
 }

@@ -18,30 +18,34 @@ package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.libs.json._
 
-case class Info(businessName: Option[String] = None,
-                tradingName: Option[String] = None,
-                fullName: Option[String] = None,
-                address: Option[Address] = None
-               )
+case class Info(
+    businessName: Option[String]  = None,
+    tradingName:  Option[String]  = None,
+    fullName:     Option[String]  = None,
+    address:      Option[Address] = None
+  )
 
 object Info {
 
   def etmpReader(implicit environment: play.api.Environment): Reads[Info] = new Reads[Info] {
+
     def reads(js: JsValue): JsResult[Info] = {
       // should accommodate for both styles. i.e. whether it includes a sub level of groupMember or not
       val memberLevelJs = (js \ "groupMember").getOrElse(js)
       for {
-        companyName <- (memberLevelJs \ "companyName").validateOpt[String]
-        tradingName <- (memberLevelJs \ "tradingName").validateOpt[String]
+        companyName     <- (memberLevelJs \ "companyName").validateOpt[String]
+        tradingName     <- (memberLevelJs \ "tradingName").validateOpt[String]
         businessAddress <- (memberLevelJs \ "businessAddress").validate[Address](Address.etmpReader)
-      } yield {
-        Info(businessName = companyName,
-          tradingName = tradingName,
-          fullName = None, // TODO how to handle SoleTrader
-          address = Some(businessAddress))
-      }
+      } yield Info(
+        businessName = companyName,
+        tradingName  = tradingName,
+        fullName     = None, // TODO how to handle SoleTrader
+        address      = Some(businessAddress)
+      )
     }
+
   }
 
   implicit val frontEndFormatter: OFormat[Info] = Json.format[Info]
+
 }

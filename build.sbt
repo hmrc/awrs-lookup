@@ -5,14 +5,14 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName: String = "awrs-lookup"
 
-lazy val appDependencies : Seq[ModuleID] = AppDependencies()
-lazy val plugins : Seq[Plugins] = Seq.empty
-lazy val playSettings : Seq[Setting[?]] = Seq.empty
+lazy val appDependencies: Seq[ModuleID]   = AppDependencies()
+lazy val plugins:         Seq[Plugins]    = Seq.empty
+lazy val playSettings:    Seq[Setting[?]] = Seq.empty
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
-    ScoverageKeys.coverageExcludedPackages  := "<empty>;app.*;config.*;Reverse.*;.*AuthService.*;models/.data/..*;view.*;uk.gov.hmrc.BuildInfo;uk.gov.hmrc.awrslookup;prod.*;testOnlyDoNotUseInAppConf.*",
+    ScoverageKeys.coverageExcludedPackages := "<empty>;app.*;config.*;Reverse.*;.*AuthService.*;models/.data/..*;view.*;uk.gov.hmrc.BuildInfo;uk.gov.hmrc.awrslookup;prod.*;testOnlyDoNotUseInAppConf.*",
     ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true,
@@ -21,7 +21,7 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins((Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins) *)
+  .enablePlugins((Seq(play.sbt.PlayScala, SbtDistributablesPlugin, ScalafmtPlugin) ++ plugins) *)
   .settings((playSettings ++ scoverageSettings) *)
   .settings(majorVersion := 0)
   .settings(scalaSettings *)
@@ -32,8 +32,12 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= appDependencies,
     retrieveManaged := true
   )
-
-  .settings(resolvers ++= Seq(
-    Resolver.jcenterRepo
-  ))
+  .settings(
+    resolvers ++= Seq(
+      Resolver.jcenterRepo
+    )
+  )
+  .settings(
+    Compile / compile := ((Compile / compile) dependsOn scalafmtCheckAll).value,
+  )
   .disablePlugins(JUnitXmlReportPlugin)

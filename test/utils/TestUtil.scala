@@ -26,15 +26,13 @@ trait TestUtil {
 
 //  lazy val dummyDataMap = Map("$nino" -> testNino, "$utr" -> testUtr, "$grpJoinDate" -> testGrpJoinDate, "$testRefNo" -> testRefNo)
 
-  def load(path: String): String = {
+  def load(path: String): String =
     Source.fromURL(getClass.getResource(path)).mkString
-  }
 
 //  def loadWithDummy(path: String): String = loadAndReplace(path, dummyDataMap)
 
-  def loadAndParseJson(path: String): JsValue = {
+  def loadAndParseJson(path: String): JsValue =
     Json.parse(load(path))
-  }
 
 //  def loadAndParseJsonWithDummyData(path: String): JsValue = {
 //    Json.parse(loadAndReplace(path, dummyDataMap))
@@ -42,23 +40,23 @@ trait TestUtil {
 
   def loadAndReplace(path: String, replaceMap: Map[String, String]): String = {
     var jsonString = Source.fromURL(getClass.getResource(path)).mkString
-    for ((key, value) <- replaceMap) {
+    for ((key, value) <- replaceMap)
       jsonString = jsonString.replace(key, value)
-    }
     jsonString
   }
 
-  def loadReplaceAndParseJson(path: String, replaceMap: Map[String, String]): JsValue = {
+  def loadReplaceAndParseJson(path: String, replaceMap: Map[String, String]): JsValue =
     Json.parse(loadAndReplace(path, replaceMap))
-  }
 
   def updateJson(updatesToJson: JsObject, actualJson: String): String = {
     val awrsModelJson = Json.parse(actualJson)
 
-    val jsonTransformer = (__).json.update(__.read[JsObject].map {
-      o => o.deepMerge(updatesToJson)
-    })
-    val invalidJson = awrsModelJson.validate(jsonTransformer).get
+    val jsonTransformer = __
+      .json
+      .update(__.read[JsObject].map { o =>
+        o.deepMerge(updatesToJson)
+      })
+    val invalidJson     = awrsModelJson.validate(jsonTransformer).get
     invalidJson.toString()
   }
 
@@ -66,7 +64,7 @@ trait TestUtil {
     val awrsModelJson = Json.parse(actualJson)
 
     val jsonTransformer = pathToDelete.json.prune
-    val invalidJson = awrsModelJson.validate(jsonTransformer).get
+    val invalidJson     = awrsModelJson.validate(jsonTransformer).get
     invalidJson.toString()
   }
 //
@@ -75,4 +73,5 @@ trait TestUtil {
 //    val factory = JsonSchemaFactory.byDefault.getJsonSchema(JsonLoader.fromResource(schemaPath))
 //    factory.validate(json).isSuccess
 //  }
+
 }

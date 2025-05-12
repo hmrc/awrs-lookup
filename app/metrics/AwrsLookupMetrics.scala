@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 
-class AwrsLookupMetrics @Inject()() {
+class AwrsLookupMetrics @Inject() () {
 
   private val metricRegistry = new MetricRegistry
 
@@ -43,5 +43,5 @@ class AwrsLookupMetrics @Inject()() {
   def incrementSuccessCounter(api: ApiType): Unit = successCounters(api).inc()
 
   def incrementFailedCounter(api: ApiType): Unit = failedCounters(api).inc()
-}
 
+}
