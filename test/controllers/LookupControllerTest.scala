@@ -26,7 +26,7 @@ import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.awrslookup.controllers.LookupController
-import uk.gov.hmrc.awrslookup.services.EtmpLookupService
+import uk.gov.hmrc.awrslookup.services.LookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.HttpResponse
 import utils.AwrsTestConstants._
@@ -36,51 +36,51 @@ import utils.AwrsUnitTestTraits
 import scala.concurrent.{ExecutionContext, Future}
 
 class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
-  val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
+  val mockLookupService: LookupService = mock[LookupService]
   val lookupFailure: JsValue = Json.parse( """{"reason": "Generic test reason"}""")
   val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val awrsMetrics: AwrsLookupMetrics = app.injector.instanceOf[AwrsLookupMetrics]
   val loggingUtils: LoggingUtils = app.injector.instanceOf[LoggingUtils]
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  object TestLookupController extends LookupController(environment, controllerComponents, awrsMetrics, mockEtmpLookupService, loggingUtils)
+  object TestLookupController extends LookupController(environment, controllerComponents, awrsMetrics, mockLookupService, loggingUtils)
 
   "Lookup Controller " must {
 
     "lookup awrs entry from HODS when passed a valid awrs reference" in {
-      when(mockEtmpLookupService.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
+      when(mockLookupService.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe OK
     }
 
     "return NOT FOUND error from HODS when awrs entry is not found" in {
-      when(mockEtmpLookupService.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, lookupFailure.toString)))
+      when(mockLookupService.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return BAD REQUEST error from HODS when the request have not passed validation" in {
-      when(mockEtmpLookupService.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, lookupFailure.toString)))
+      when(mockLookupService.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe BAD_REQUEST
     }
 
     "return INTERNAL SERVER ERROR error from HODS when WS02 is experiencing problems" in {
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any))
         .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return SERVICE UNAVAILABLE error from HODS when the service is unavilable" in {
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any()))
         .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
     "return INTERNAL SERVER ERROR error from HODS when any other error is encountered" in {
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any()))
         .thenReturn(Future.successful(HttpResponse(GATEWAY_TIMEOUT, lookupFailure.toString)))
       val result = TestLookupController.lookupByUrn(invalidRef).apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
@@ -100,7 +100,7 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
         "\"addressLine4\":\"addressLine4\"," +
         "\"postcode\":\"TF3 XYZ\"}}," +
         "\"registrationEndDate\":\"01 April 2017\"}}]}"
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any()))
         .thenReturn(Future.successful(HttpResponse(OK, businessJson.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe OK
@@ -108,21 +108,21 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
     }
 
     "return a NOT FOUND when ETMP returns a deregistered business with date prior to 01 April 2017" in {
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any()))
         .thenReturn(Future.successful(HttpResponse(OK, deRegisteredBusinessPriorToFirstApril.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return a NOT FOUND when ETMP returns a revoked business with date prior to 01 April 2017" in {
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any()))
         .thenReturn(Future.successful(HttpResponse(OK, revokedBusinessPriorToFirstApril.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return a NOT FOUND when ETMP returns a revoked business with date of 01 April 2017" in {
-      when(mockEtmpLookupService.lookupByUrn(any()))
+      when(mockLookupService.lookupByUrn(any())(any()))
         .thenReturn(Future.successful(HttpResponse(OK, revokedBusinessFirstApril.toString)))
       val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND

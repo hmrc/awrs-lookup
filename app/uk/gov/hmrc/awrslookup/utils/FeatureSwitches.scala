@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.awrslookup.services
+package uk.gov.hmrc.awrslookup.utils
 
-import uk.gov.hmrc.awrslookup.connectors.EtmpConnector
-import uk.gov.hmrc.http.HttpResponse
+import play.api.Logging
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
-class EtmpLookupService @Inject()(etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
+object FeatureSwitches extends Logging {
 
-  def lookupByUrn(awrsRefNo: String): Future[HttpResponse] =
-    etmpConnector.lookupByUrn(awrsRefNo) map {
-      response =>
-        response.status match {
-          case _ => response
-        }
+  def enable(property: String): Unit = sys.props += (property-> "true")
+  def disable(property: String): Unit = sys.props += (property-> "false")
+
+  def hipEnabled(): Boolean = {
+    isEnabled("hipEnabled")
+  }
+
+  private def isEnabled(feature: String): Boolean = {
+    sys.props.get(s"feature.$feature").exists {
+      feature =>
+        Try(feature.toBoolean).getOrElse(false)
     }
-
+  }
 }

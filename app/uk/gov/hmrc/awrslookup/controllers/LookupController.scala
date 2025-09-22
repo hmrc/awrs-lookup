@@ -25,7 +25,7 @@ import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
 import uk.gov.hmrc.awrslookup.models.frontend._
-import uk.gov.hmrc.awrslookup.services.EtmpLookupService
+import uk.gov.hmrc.awrslookup.services.LookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -35,7 +35,7 @@ import scala.concurrent.ExecutionContext
 class LookupController @Inject()(val environment: Environment,
                                  controllerComponents: ControllerComponents,
                                  metrics: AwrsLookupMetrics,
-                                 lookupService: EtmpLookupService,
+                                 lookupService: LookupService,
                                  loggingUtils: LoggingUtils)(implicit ec: ExecutionContext) extends BackendController(controllerComponents) {
 
   val referenceNotFoundString = "AWRS reference not found"
