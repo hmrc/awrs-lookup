@@ -82,53 +82,11 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
 
   def convertHipJson(jsonString: String): Option[JsObject] = {
 
-    val awrsTransformer = __.json.update(
-      (__ \ AwrsRegistrationNumber).json.copyFrom( (__ \ AwrsRegNumber).json.pick)
-    ) andThen (__ \ AwrsRegNumber).json.prune
-
-    val dateTransformer = __.json.update(
-      (__ \ ProcessingDate).json.copyFrom( (__ \ ProcessingDateTime).json.pick)
-    ) andThen (__ \ ProcessingDateTime).json.prune
-
-    val wholesalerAddressTransformer = __.json.update(
-      (__ \ Wholesaler \ BusinessAddress).json.copyFrom( (__ \ Wholesaler \ Address).json.pick)
-    ) andThen
-      (__ \ Wholesaler \ Address).json.prune
-
-    val wholesalerPostcodeTransformer = __.json.update(
-      (__ \ Wholesaler \ BusinessAddress \ Postcode).json.copyFrom( (__ \ Wholesaler \ BusinessAddress \ PostalCode).json.pick)
-    ).orElse(__.json.pick[JsObject]) andThen
-      (__ \ Wholesaler \ BusinessAddress \ PostalCode).json.prune.orElse(__.json.pick[JsObject])
-
-    val groupAddressTransformer = __.json.update(
-      (__ \ BusinessAddress).json.copyFrom( (__ \ Address).json.pick)
-    ) andThen
-      (__ \ Address).json.prune
-
-    val groupPostcodeTransformer = __.json.update(
-      (__ \ BusinessAddress \ Postcode).json.copyFrom( (__ \ BusinessAddress \ PostalCode).json.pick)
-    ).orElse(__.json.pick[JsObject]) andThen
-      (__ \ BusinessAddress \ PostalCode).json.prune.orElse(__.json.pick[JsObject])
-
-    val groupMembersTransformer = (__ \ GroupMembers).json.update {
-       __.read[JsArray].map {
-        case JsArray(elements) =>
-          JsArray(
-            elements.map(_.transform(groupAddressTransformer andThen groupPostcodeTransformer).get)
-          )
-      }
-    }.orElse(__.json.pick[JsObject])
-
     for {
       body <- Try(Json.parse(jsonString)).toOption
       successNode <- (body \ Success).toOption
-      awrs <- successNode.transform(awrsTransformer).asOpt
-      date <- awrs.transform(dateTransformer).asOpt
-      address <- date.transform(wholesalerAddressTransformer).asOpt
-      postcode <- address.transform(wholesalerPostcodeTransformer).asOpt
-      groups <- postcode.transform(groupMembersTransformer).asOpt
     } yield {
-      groups
+      successNode.asInstanceOf[JsObject]
     }
   }
 

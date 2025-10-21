@@ -108,21 +108,21 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
       val hipJson = """{
               "success" : {
-                "awrsRegNumber" : "2345678",
+                "awrsRegistrationNumber" : "2345678",
                 "startDate" : "2016-04-01",
                 "endDate" : "2016-10-17",
                 "awrsStatus" : "approved",
-                "processingDateTime" : "2001-12-31T12:30:59Z",
+                "processingDate" : "2001-12-31T12:30:59Z",
                 "wholesaler" : {
                  "companyName" : "companyName",
                   "tradingName" : "tradingName",
-                  "address" : {
+                  "businessAddress" : {
                     "addressLine1" : "addressLine1",
                     "addressLine2" : "addressLine2",
                     "addressLine3" : "addressLine3",
                     "addressLine4" : "addressLine4",
                     "country" : "GB",
-                    "postalCode" : "TF3 XYZ"
+                    "postcode" : "TF3 XYZ"
                   }
                 }
               }
@@ -167,34 +167,34 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
       val hipJson = """{
               "success" : {
-                "awrsRegNumber" : "2345678",
+                "awrsRegistrationNumber" : "2345678",
                 "startDate" : "2016-04-01",
                 "endDate" : "2016-10-17",
                 "awrsStatus" : "approved",
-                "processingDateTime" : "2001-12-31T12:30:59Z",
+                "processingDate" : "2001-12-31T12:30:59Z",
                 "wholesaler" : {
                  "companyName" : "companyName",
                   "tradingName" : "tradingName",
-                  "address" : {
+                  "businessAddress" : {
                     "addressLine1" : "addressLine1",
                     "addressLine2" : "addressLine2",
                     "addressLine3" : "addressLine3",
                     "addressLine4" : "addressLine4",
                     "country" : "GB",
-                    "postalCode" : "TF3 XYZ"
+                    "postcode" : "TF3 XYZ"
                   }
                 },
                 "groupMembers": [
                   {
                     "companyName": "Company Name 3",
                     "tradingName": "trading Name 3",
-                    "address": {
+                    "businessAddress": {
                       "addressLine1": "addressLine1",
                       "addressLine2": "addressLine2",
                       "addressLine3": "addressLine3",
                       "addressLine4": "addressLine4",
                       "country": "GB",
-                      "postalCode": "TF3 XYZ"
+                      "postcode": "TF3 XYZ"
                     }
                   }
                 ]
