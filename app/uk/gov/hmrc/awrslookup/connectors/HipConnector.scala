@@ -45,9 +45,12 @@ class HipConnector @Inject() (http: HttpClientV2,
   private val clientSecret: String = config.getConfString("hip.clientSecret", "")
   private val authorizationToken: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
 
+  // remove the "-lookup" part, as HIP assumes the app names to be "awrs" (but auditing still expects "awrs-lookup")
+  private val appNameForHIP: String = appName.replace("-lookup", "")
+
   val headers: Seq[(String, String)] = Seq(
     "correlationid" -> UUID.randomUUID().toString,
-    "X-Originating-System" -> appName,
+    "X-Originating-System" -> appNameForHIP,
     "X-Receipt-Date" -> retrieveCurrentUkTimestamp,
     "X-Transmitting-System" -> transmittingSystem,
     "Authorization" -> s"Basic $authorizationToken"
