@@ -128,4 +128,54 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
       status(result) shouldBe NOT_FOUND
     }
   }
+
+  "return a NOT FOUND when HIP returns a 422 with error code 006 (nor records found)" in {
+
+    val error = """{
+                  |  "errors": {
+                  |    "processingDate": "2025-12-02T13:14:41Z",
+                  |    "code": "006",
+                  |    "text": "No records found"
+                  |  }
+                  |}
+                  |  """.stripMargin
+
+    when(mockLookupService.lookupByUrn(any())(any()))
+      .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error)))
+
+    val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+    status(result) shouldBe NOT_FOUND
+  }
+
+  "return a INTERNAL SERVER ERROR  when HIP returns a 422 with a error code different from 006" in {
+
+    val error = """{
+                  |  "errors": {
+                  |    "processingDate": "2025-12-02T13:14:41Z",
+                  |    "code": "002",
+                  |    "text": "ID not found"
+                  |  }
+                  |}
+                  |  """.stripMargin
+
+    when(mockLookupService.lookupByUrn(any())(any()))
+      .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error)))
+
+    val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+    status(result) shouldBe INTERNAL_SERVER_ERROR
+  }
+
+  "return a INTERNAL SERVER ERROR  when HIP returns a 422 with a unexpected error payload" in {
+
+    val error = """{
+                  |}
+                  |  """.stripMargin
+
+    when(mockLookupService.lookupByUrn(any())(any()))
+      .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error)))
+
+    val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+    status(result) shouldBe INTERNAL_SERVER_ERROR
+  }
+
 }

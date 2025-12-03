@@ -20,7 +20,7 @@ import javax.inject.Inject
 import metrics.AwrsLookupMetrics
 import java.time.LocalDate
 import play.api.Environment
-import play.api.libs.json.{JsSuccess, Json}
+import play.api.libs.json.{JsString, JsSuccess, Json}
 import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 class LookupController @Inject()(val environment: Environment,
                                  controllerComponents: ControllerComponents,
@@ -39,6 +40,10 @@ class LookupController @Inject()(val environment: Environment,
                                  loggingUtils: LoggingUtils)(implicit ec: ExecutionContext) extends BackendController(controllerComponents) {
 
   val referenceNotFoundString = "AWRS reference not found"
+
+  val errorsNode = "errors"
+  val codeNode = "code"
+  val errorCodeNoRecordFound = "006"
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
@@ -83,6 +88,9 @@ class LookupController @Inject()(val environment: Environment,
       case SERVICE_UNAVAILABLE =>
         doAuditing(apiType, "Search Result", "SERVICE_UNAVAILABLE", loggingUtils.eventTypeServiceUnavailable, metrics.incrementFailedCounter)
         ServiceUnavailable(lookupResponse.body)
+      case UNPROCESSABLE_ENTITY if containsError006(lookupResponse.body) =>
+        doAuditing(apiType, "Search Result", "UNPORCESSABLE_CONTENT", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
+        NotFound(referenceNotFoundString)
       case _ =>
         doAuditing(apiType, "Search Result", "OTHER_ERROR", loggingUtils.eventTypeGeneric, metrics.incrementFailedCounter)
         InternalServerError(lookupResponse.body)
@@ -96,5 +104,18 @@ class LookupController @Inject()(val environment: Environment,
                          incrementCounter: ApiType => Unit)(implicit hc: HeaderCarrier): Unit = {
     incrementCounter(apiType)
     loggingUtils.audit(loggingUtils.auditLookupTxName, Map(action -> message), eventType)
+  }
+
+  private def containsError006(jsonString: String): Boolean = {
+
+    val containsCode006 = {
+      for {
+        errorMessageBody <- Try(Json.parse(jsonString)).toOption
+        errorCodeNode <- (errorMessageBody \ errorsNode \ codeNode).toOption
+      } yield {
+        errorCodeNode.asInstanceOf[JsString].value == errorCodeNoRecordFound
+      }
+    }
+    containsCode006.getOrElse(false)
   }
 }

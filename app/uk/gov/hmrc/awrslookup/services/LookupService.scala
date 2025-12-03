@@ -20,7 +20,6 @@ import uk.gov.hmrc.awrslookup.connectors.{EtmpConnector, HipConnector}
 import play.api.Logging
 import play.api.http.Status
 import play.api.libs.json._
-import play.api.libs.json.Reads._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.awrslookup.utils.FeatureSwitches
 
@@ -34,16 +33,6 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
   extends Logging {
 
   val Success = "success"
-  val AwrsRegistrationNumber = "awrsRegistrationNumber"
-  val AwrsRegNumber = "awrsRegNumber"
-  val ProcessingDate = "processingDate"
-  val ProcessingDateTime = "processingDateTime"
-  val Wholesaler = "wholesaler"
-  val BusinessAddress = "businessAddress"
-  val Address = "address"
-  val Postcode = "postcode"
-  val PostalCode = "postalCode"
-  val GroupMembers = "groupMembers"
 
   private def lookupEtmp(awrsRefNo: String): Future[HttpResponse] =
     etmpConnector.lookupByUrn(awrsRefNo) map {
