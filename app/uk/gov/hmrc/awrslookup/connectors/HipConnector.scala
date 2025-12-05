@@ -25,40 +25,37 @@ import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Base64, UUID}
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
 class HipConnector @Inject() (http: HttpClientV2,
                               loggingUtils: LoggingUtils,
-                              config: ServicesConfig,
-                              @Named("appName") val appName: String)
+                              config: ServicesConfig)
                              (implicit ec: ExecutionContext) {
 
   lazy val serviceURL: String = config.baseUrl("hip")
-  val baseURI: String = "/etmp/RESTAdapter/awrs"
-  val lookupURI: String = "/alcohol-wholesalers/lookup/id/"
+  private val baseURI: String = "/etmp/RESTAdapter/awrs"
+  private val lookupURI: String = "/alcohol-wholesalers/lookup/id/"
   private val transmittingSystem = "HIP"
 
   private val clientId: String = config.getConfString("hip.clientId", "")
   private val clientSecret: String = config.getConfString("hip.clientSecret", "")
+  private val originatingSystem: String = config.getConfString("hip.originatingSystem", "AWRS")
+
   private val authorizationToken: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
 
-  // remove the "-lookup" part, as HIP assumes the app names to be "awrs" (but auditing still expects "awrs-lookup")
-  private val appNameForHIP: String = appName.replace("-lookup", "").toUpperCase
-
-  val headers: Seq[(String, String)] = Seq(
+  private val headers: Seq[(String, String)] = Seq(
     "correlationid" -> UUID.randomUUID().toString,
-    "X-Originating-System" -> appNameForHIP,
-    "X-Receipt-Date" -> retrieveCurrentUkTimestamp,
+    "X-Originating-System" -> originatingSystem,
+    "X-Receipt-Date" -> currentTime,
     "X-Transmitting-System" -> transmittingSystem,
     "Authorization" -> s"Basic $authorizationToken"
   )
 
-  private def retrieveCurrentUkTimestamp: String = {
+  private def currentTime: String = {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    formatter.format(ZonedDateTime.now(ZoneId.of("Europe/London")))
+    formatter.format(ZonedDateTime.now(ZoneId.of("UTC")))
   }
 
   def lookupByUrn(awrsRefNo: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
