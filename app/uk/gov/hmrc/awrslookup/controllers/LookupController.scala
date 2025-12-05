@@ -43,7 +43,6 @@ class LookupController @Inject()(val environment: Environment,
 
   val errorsNode = "errors"
   val codeNode = "code"
-  val errorCodeNoRecordFound = "006"
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
@@ -88,9 +87,18 @@ class LookupController @Inject()(val environment: Environment,
       case SERVICE_UNAVAILABLE =>
         doAuditing(apiType, "Search Result", "SERVICE_UNAVAILABLE", loggingUtils.eventTypeServiceUnavailable, metrics.incrementFailedCounter)
         ServiceUnavailable(lookupResponse.body)
-      case UNPROCESSABLE_ENTITY if containsError006(lookupResponse.body) =>
-        doAuditing(apiType, "Search Result", "UNPORCESSABLE_CONTENT", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
-        NotFound(referenceNotFoundString)
+      case UNPROCESSABLE_ENTITY  =>
+        hipErrorCode(lookupResponse.body) match {
+          case Some("002") =>
+            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, BAD_REQUEST", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
+            BadRequest(lookupResponse.body)
+          case Some("006") =>
+            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, NOT_FOUND", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
+            NotFound(referenceNotFoundString)
+          case _ =>
+            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, OTHER_ERROR", loggingUtils.eventTypeGeneric, metrics.incrementFailedCounter)
+            InternalServerError(lookupResponse.body)
+        }
       case _ =>
         doAuditing(apiType, "Search Result", "OTHER_ERROR", loggingUtils.eventTypeGeneric, metrics.incrementFailedCounter)
         InternalServerError(lookupResponse.body)
@@ -106,16 +114,13 @@ class LookupController @Inject()(val environment: Environment,
     loggingUtils.audit(loggingUtils.auditLookupTxName, Map(action -> message), eventType)
   }
 
-  private def containsError006(jsonString: String): Boolean = {
+  private def hipErrorCode(jsonString: String): Option[String] = {
 
-    val containsCode006 = {
-      for {
-        errorMessageBody <- Try(Json.parse(jsonString)).toOption
-        errorCodeNode <- (errorMessageBody \ errorsNode \ codeNode).toOption
-      } yield {
-        errorCodeNode.asInstanceOf[JsString].value == errorCodeNoRecordFound
-      }
+    for {
+      errorMessageBody <- Try(Json.parse(jsonString)).toOption
+      errorCodeNode <- (errorMessageBody \ errorsNode \ codeNode).toOption
+    } yield {
+      errorCodeNode.asInstanceOf[JsString].value
     }
-    containsCode006.getOrElse(false)
   }
 }

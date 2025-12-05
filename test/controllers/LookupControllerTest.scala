@@ -147,7 +147,7 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
     status(result) shouldBe NOT_FOUND
   }
 
-  "return a INTERNAL SERVER ERROR  when HIP returns a 422 with a error code different from 006" in {
+  "return a BAD REQUEST when HIP returns a 422 with a error code 002" in {
 
     val error = """{
                   |  "errors": {
@@ -162,12 +162,30 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
       .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error)))
 
     val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
+    status(result) shouldBe BAD_REQUEST
+  }
+
+  "return a INTERNAL SERVER ERROR  when HIP returns a 422 with an non-defined error code" in {
+
+    val error = """{
+                  |  "errors": {
+                  |    "processingDate": "2025-12-02T13:14:41Z",
+                  |    "code": "123",
+                  |    "text": "Some undefined error"
+                  |  }
+                  |}
+                  |  """.stripMargin
+
+    when(mockLookupService.lookupByUrn(any())(any()))
+      .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error)))
+
+    val result = TestLookupController.lookupByUrn(testRefNo).apply(FakeRequest())
     status(result) shouldBe INTERNAL_SERVER_ERROR
   }
 
-  "return a INTERNAL SERVER ERROR  when HIP returns a 422 with a unexpected error payload" in {
+  "return a INTERNAL SERVER ERROR  when HIP returns a 422 with a unparsable error payload" in {
 
-    val error = """{
+    val error = """{ "broken"
                   |}
                   |  """.stripMargin
 

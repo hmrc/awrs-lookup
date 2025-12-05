@@ -40,7 +40,7 @@ class HipConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Connec
 
   implicit val httpReads: HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
 
-  object TestHipConnector extends HipConnector(mockHttpClient, loggingUtils, servicesConfig, "awrs-lookup")
+  object TestHipConnector extends HipConnector(mockHttpClient, loggingUtils, servicesConfig)
 
   override def beforeEach(): Unit = {
     reset(mockHttpClient)
