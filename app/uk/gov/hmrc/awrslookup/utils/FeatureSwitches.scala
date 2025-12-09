@@ -25,8 +25,8 @@ object FeatureSwitches extends Logging {
   def enable(property: String): Unit = sys.props += (property-> "true")
   def disable(property: String): Unit = sys.props += (property-> "false")
 
-  def hipEnabled(): Boolean = {
-    isEnabled("hipEnabled")
+  def hipSwitch(): Boolean = {
+    isEnabled("hipSwitch")
   }
 
   private def isEnabled(feature: String): Boolean = {
