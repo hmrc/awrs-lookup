@@ -80,7 +80,7 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
   }
 
   def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    if (FeatureSwitches.hipEnabled()) {
+    if (FeatureSwitches.hipSwitch()) {
       lookup(awrsRefNo)
     } else {
       lookupEtmp(awrsRefNo)
