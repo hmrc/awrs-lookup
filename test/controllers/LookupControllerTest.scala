@@ -147,13 +147,13 @@ class LookupControllerTest extends PlaySpec with AwrsUnitTestTraits {
     status(result) shouldBe NOT_FOUND
   }
 
-  "return a BAD REQUEST when HIP returns a 422 with a error code 002" in {
+  "return a BAD REQUEST when HIP returns a 422 with a error code 003" in {
 
     val error = """{
                   |  "errors": {
                   |    "processingDate": "2025-12-02T13:14:41Z",
-                  |    "code": "002",
-                  |    "text": "ID not found"
+                  |    "code": "003",
+                  |    "text": "Request could not be processed"
                   |  }
                   |}
                   |  """.stripMargin
