@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.awrslookup.utils
 
+import jakarta.inject.Singleton
 import play.api.Logging
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import scala.util.Try
+import javax.inject.Inject
 
-object FeatureSwitches extends Logging {
+@Singleton
+class FeatureSwitches @Inject()(config: ServicesConfig) extends Logging {
 
   def enable(property: String): Unit = sys.props += (property-> "true")
   def disable(property: String): Unit = sys.props += (property-> "false")
@@ -30,9 +33,10 @@ object FeatureSwitches extends Logging {
   }
 
   private def isEnabled(feature: String): Boolean = {
-    sys.props.get(s"feature.$feature").exists {
-      feature =>
-        Try(feature.toBoolean).getOrElse(false)
+
+    sys.props.get(s"feature.$feature") match {
+      case Some(value) => value.toBooleanOption.getOrElse(false)
+      case _ => config.getString(s"feature.$feature").toBooleanOption.getOrElse(false)
     }
   }
 }
