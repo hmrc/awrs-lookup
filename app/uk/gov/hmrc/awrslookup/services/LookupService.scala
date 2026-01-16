@@ -28,7 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class LookupService @Inject()(etmpConnector: EtmpConnector,
-                              hipConnector: HipConnector)
+                              hipConnector: HipConnector,
+                              featureSwitches: FeatureSwitches)
                              (implicit ec: ExecutionContext)
   extends Logging {
 
@@ -80,7 +81,7 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
   }
 
   def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    if (FeatureSwitches.hipSwitch()) {
+    if (featureSwitches.hipSwitch()) {
       lookup(awrsRefNo)
     } else {
       lookupEtmp(awrsRefNo)

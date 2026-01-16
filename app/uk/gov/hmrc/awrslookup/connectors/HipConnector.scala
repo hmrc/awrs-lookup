@@ -45,7 +45,7 @@ class HipConnector @Inject() (http: HttpClientV2,
 
   private val authorizationToken: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
 
-  private val headers: Seq[(String, String)] = Seq(
+  private def headers: Seq[(String, String)] = Seq(
     "correlationid" -> UUID.randomUUID().toString,
     "X-Originating-System" -> originatingSystem,
     "X-Receipt-Date" -> currentTime,

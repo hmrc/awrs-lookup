@@ -19,6 +19,7 @@ package services
 import connectors.ConnectorTest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -30,26 +31,36 @@ import uk.gov.hmrc.awrslookup.connectors.{EtmpConnector, HipConnector}
 import uk.gov.hmrc.awrslookup.services.LookupService
 import uk.gov.hmrc.awrslookup.utils.FeatureSwitches
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestConstants._
 import utils.AwrsTestJson
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with ConnectorTest  {
+class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with ConnectorTest with BeforeAndAfterEach with BeforeAndAfterAll {
 
   val HipSwitchProperty = "feature.hipSwitch"
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
+  val featureSwitches: FeatureSwitches = new FeatureSwitches(app.injector.instanceOf[ServicesConfig])
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  object LookupService extends LookupService(mockEtmpConnector, mockHipConnector)
+  object LookupService extends LookupService(mockEtmpConnector, mockHipConnector, featureSwitches)
+
+  override def beforeEach(): Unit = {
+    featureSwitches.disable(HipSwitchProperty)
+  }
+
+  override def afterAll(): Unit = {
+    featureSwitches.disable(HipSwitchProperty)
+  }
 
   "LookupService with Hip not enabled" must {
 
     "successfully lookup an entry when passed a valid reference number" in {
       val awrsRefNo = testRefNo
-      FeatureSwitches.disable(HipSwitchProperty)
+      featureSwitches.disable(HipSwitchProperty)
       when(mockEtmpConnector.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result = LookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe OK
@@ -78,7 +89,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
               }
         }"""
       val lookupSuccess = AwrsTestJson.businessJson
-      FeatureSwitches.disable(HipSwitchProperty)
+      featureSwitches.disable(HipSwitchProperty)
       when(mockEtmpConnector.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
       val result = LookupService.lookupByUrn(awrsRefNo)
       Json.parse(await(result).body) shouldBe Json.parse(expectedOutput)
@@ -86,7 +97,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
     "return Not Found when passed an reference number that does not exist" in {
       val invalidAwrsRefNo = invalidRef
-      FeatureSwitches.disable(HipSwitchProperty)
+      featureSwitches.disable(HipSwitchProperty)
       when(mockEtmpConnector.lookupByUrn(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
       val result = LookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
@@ -97,7 +108,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
     "return internal server error if Json body cannot be parsed and converted" in {
       val awrsRefNo = testRefNo
-      FeatureSwitches.enable(HipSwitchProperty)
+      featureSwitches.enable(HipSwitchProperty)
       when(mockHipConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result = LookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe INTERNAL_SERVER_ERROR
@@ -149,7 +160,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
               }
         }"""
 
-      FeatureSwitches.enable(HipSwitchProperty)
+      featureSwitches.enable(HipSwitchProperty)
       when(mockHipConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, hipJson)))
       val result = LookupService.lookupByUrn(awrsRefNo)
       Json.parse(await(result).body) shouldBe Json.parse(expectedOutput)
@@ -157,7 +168,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
     "return Not Found when passed an reference number that does not exist" in {
       val invalidAwrsRefNo = invalidRef
-      FeatureSwitches.enable(HipSwitchProperty)
+      featureSwitches.enable(HipSwitchProperty)
       when(mockHipConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
       val result = LookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND
