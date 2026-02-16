@@ -18,9 +18,10 @@ package uk.gov.hmrc.awrslookup.controllers
 
 import javax.inject.Inject
 import metrics.AwrsLookupMetrics
+
 import java.time.LocalDate
 import play.api.Environment
-import play.api.libs.json.{JsString, JsSuccess, Json}
+import play.api.libs.json.{JsResultException, JsString, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
@@ -54,6 +55,15 @@ class LookupController @Inject()(val environment: Environment,
       }
   }
 
+  // Temporary code to prevent confidential information being logged if Json cannot be parsed
+  private def parseSearchResultAndPreventSensitiveInfoLeakOnFailure(json: JsValue)(implicit fjs: play.api.libs.json.Reads[SearchResult]): SearchResult = {
+    try {
+      json.as[SearchResult]
+    } catch {
+      case e: Exception => throw new RuntimeException("Error parsing lookup response Json")
+    }
+  }
+
   def processResponse(lookupResponse: HttpResponse, apiType: ApiType)(implicit fjs: play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier): Result = {
     lookupResponse.status match {
       case OK =>
@@ -67,12 +77,14 @@ class LookupController @Inject()(val environment: Environment,
               NotFound(referenceNotFoundString)
             } else {
               doAuditing(apiType, "Search Result", "success", loggingUtils.eventTypeSuccess, metrics.incrementSuccessCounter)
-              val convertedJson = lookupResponse.json.as[SearchResult]
+
+              val convertedJson = parseSearchResultAndPreventSensitiveInfoLeakOnFailure(lookupResponse.json)
+
               Ok(Json.toJson(convertedJson))
             }
           case _ =>
             doAuditing(apiType, "Search Result", "success", loggingUtils.eventTypeSuccess, metrics.incrementSuccessCounter)
-            val convertedJson = lookupResponse.json.as[SearchResult]
+            val convertedJson = parseSearchResultAndPreventSensitiveInfoLeakOnFailure(lookupResponse.json)
             Ok(Json.toJson(convertedJson))
         }
       case NOT_FOUND =>
