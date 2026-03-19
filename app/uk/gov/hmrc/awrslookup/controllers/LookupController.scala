@@ -102,7 +102,7 @@ class LookupController @Inject()(environment: Environment,
       case UNPROCESSABLE_ENTITY  =>
         hipErrorCode(lookupResponse.body) match {
           case Some("003") =>
-            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, BAD_REQUEST", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
+            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, BAD_REQUEST", loggingUtils.eventTypeBadRequest, metrics.incrementFailedCounter)
             BadRequest(lookupResponse.body)
           case Some("006") =>
             doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, NOT_FOUND", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
