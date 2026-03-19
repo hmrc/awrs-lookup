@@ -16,39 +16,32 @@
 
 package uk.gov.hmrc.awrslookup.services
 
-import uk.gov.hmrc.awrslookup.connectors.{EtmpConnector, HipConnector}
-import play.api.Logging
+import uk.gov.hmrc.awrslookup.connectors.EtmpHipConnector
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.awrslookup.utils.FeatureSwitches
-
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-class LookupService @Inject()(etmpConnector: EtmpConnector,
-                              hipConnector: HipConnector,
-                              featureSwitches: FeatureSwitches)
-                             (implicit ec: ExecutionContext)
-  extends Logging {
+class LookupService @Inject()(etmpHipConnector: EtmpHipConnector)
+                             (implicit ec: ExecutionContext) {
 
   val Success = "success"
 
-  private def lookupEtmp(awrsRefNo: String): Future[HttpResponse] =
-    etmpConnector.lookupByUrn(awrsRefNo) map {
-      response =>
-        response.status match {
-          case _ =>
-            response
-        }
+  def convertHipJson(jsonString: String): Option[JsObject] = {
+    for {
+      body <- Try(Json.parse(jsonString)).toOption
+      successNode <- (body \ Success).toOption
+    } yield {
+      successNode.asInstanceOf[JsObject]
     }
+  }
 
-  private def lookup(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    hipConnector.lookupByUrn(awrsRefNo).map {
+  def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    etmpHipConnector.lookupByUrn(awrsRefNo).map {
       response =>
         response.status match {
-
           case Status.OK =>
             convertHipJson(response.body).map{
               convertedJson =>
@@ -64,27 +57,8 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
                 response.headers
               )
             }
-
           case _ => response
         }
-    }
-  }
-
-  def convertHipJson(jsonString: String): Option[JsObject] = {
-
-    for {
-      body <- Try(Json.parse(jsonString)).toOption
-      successNode <- (body \ Success).toOption
-    } yield {
-      successNode.asInstanceOf[JsObject]
-    }
-  }
-
-  def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    if (featureSwitches.hipSwitch()) {
-      lookup(awrsRefNo)
-    } else {
-      lookupEtmp(awrsRefNo)
     }
   }
 }

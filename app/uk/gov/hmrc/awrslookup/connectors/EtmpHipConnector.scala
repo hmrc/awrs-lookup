@@ -29,7 +29,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-class HipConnector @Inject() (http: HttpClientV2,
+class EtmpHipConnector @Inject() (http: HttpClientV2,
                               loggingUtils: LoggingUtils,
                               config: ServicesConfig)
                              (implicit ec: ExecutionContext) {
