@@ -21,7 +21,7 @@ import metrics.AwrsLookupMetrics
 
 import java.time.LocalDate
 import play.api.Environment
-import play.api.libs.json.{JsResultException, JsString, JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsString, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
@@ -34,16 +34,16 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-class LookupController @Inject()(val environment: Environment,
+class LookupController @Inject()(environment: Environment,
                                  controllerComponents: ControllerComponents,
                                  metrics: AwrsLookupMetrics,
                                  lookupService: LookupService,
                                  loggingUtils: LoggingUtils)(implicit ec: ExecutionContext) extends BackendController(controllerComponents) {
 
-  val referenceNotFoundString = "AWRS reference not found"
+  private val referenceNotFoundString = "AWRS reference not found"
 
-  val errorsNode = "errors"
-  val codeNode = "code"
+  private val errorsNode = "errors"
+  private val codeNode = "code"
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
@@ -60,7 +60,7 @@ class LookupController @Inject()(val environment: Environment,
     try {
       json.as[SearchResult]
     } catch {
-      case e: Exception => throw new RuntimeException("Error parsing lookup response Json")
+      case _: Exception => throw new RuntimeException("Error parsing lookup response Json")
     }
   }
 
@@ -102,7 +102,7 @@ class LookupController @Inject()(val environment: Environment,
       case UNPROCESSABLE_ENTITY  =>
         hipErrorCode(lookupResponse.body) match {
           case Some("003") =>
-            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, BAD_REQUEST", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
+            doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, BAD_REQUEST", loggingUtils.eventTypeBadRequest, metrics.incrementFailedCounter)
             BadRequest(lookupResponse.body)
           case Some("006") =>
             doAuditing(apiType, "Search Result", "UNPROCESSABLE_ENTITY, NOT_FOUND", loggingUtils.eventTypeNotFound, metrics.incrementFailedCounter)
@@ -127,7 +127,6 @@ class LookupController @Inject()(val environment: Environment,
   }
 
   private def hipErrorCode(jsonString: String): Option[String] = {
-
     for {
       errorMessageBody <- Try(Json.parse(jsonString)).toOption
       errorCodeNode <- (errorMessageBody \ errorsNode \ codeNode).toOption

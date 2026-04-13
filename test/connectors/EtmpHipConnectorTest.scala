@@ -22,7 +22,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status._
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.awrslookup.connectors.HipConnector
+import uk.gov.hmrc.awrslookup.connectors.EtmpHipConnector
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -31,24 +31,17 @@ import utils.AwrsTestJson
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with ConnectorTest with BeforeAndAfterEach {
+class EtmpHipConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with ConnectorTest {
 
   val servicesConfig: ServicesConfig = mock[ServicesConfig]
   val loggingUtils: LoggingUtils = mock[LoggingUtils]
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
-
   implicit val httpReads: HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
 
-  object TestHipConnector extends HipConnector(mockHttpClient, loggingUtils, servicesConfig)
+  object TestEtmpHipConnector$ extends EtmpHipConnector(mockHttpClient, loggingUtils, servicesConfig)
 
-  override def beforeEach(): Unit = {
-    reset(mockHttpClient)
-    reset(servicesConfig)
-    reset(loggingUtils)
-  }
-
-  "HipConnector" must {
+  "EtmpHipConnector" must {
 
     "lookup an application with a valid reference number " in {
       val lookupSuccess: JsValue = AwrsTestJson.businessJson
@@ -59,10 +52,8 @@ class HipConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Connec
       when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, lookupSuccess.toString)))
 
-      val result: Future[HttpResponse] = TestHipConnector.lookupByUrn(awrsRefNo)
+      val result: Future[HttpResponse] = TestEtmpHipConnector$.lookupByUrn(awrsRefNo)
       await(result).json must  be(lookupSuccess)
     }
-
   }
-
 }
