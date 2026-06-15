@@ -18,26 +18,25 @@ package services
 
 import connectors.ConnectorTest
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.OK
-import play.api.libs.json._
-import play.api.test.Helpers._
+import play.api.libs.json.*
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.awrslookup.connectors.EtmpHipConnector
 import uk.gov.hmrc.awrslookup.services.LookupService
 import uk.gov.hmrc.http.HttpResponse
-import utils.AwrsTestConstants._
+import utils.AwrsTestConstants.*
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with ConnectorTest with BeforeAndAfterEach with BeforeAndAfterAll {
 
   val mockEtmpHipConnector: EtmpHipConnector = mock[EtmpHipConnector]
-
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   object LookupService extends LookupService(mockEtmpHipConnector)
 
@@ -47,7 +46,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
       val awrsRefNo = testRefNo
 
-      when(mockEtmpHipConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockEtmpHipConnector.lookupByUrn(any())(using any())).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result = LookupService.lookupByUrn(awrsRefNo)
       await(result).status shouldBe INTERNAL_SERVER_ERROR
     }
@@ -97,7 +96,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
               }
         }"""
 
-      when(mockEtmpHipConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(OK, hipJson)))
+      when(mockEtmpHipConnector.lookupByUrn(any())(using any())).thenReturn(Future.successful(HttpResponse(OK, hipJson)))
       val result = LookupService.lookupByUrn(awrsRefNo)
       Json.parse(await(result).body) shouldBe Json.parse(expectedOutput)
     }
@@ -106,7 +105,7 @@ class LookupServiceTest extends PlaySpec with GuiceOneAppPerSuite with Connector
 
       val invalidAwrsRefNo = invalidRef
 
-      when(mockEtmpHipConnector.lookupByUrn(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
+      when(mockEtmpHipConnector.lookupByUrn(any())(using any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
       val result = LookupService.lookupByUrn(invalidAwrsRefNo)
       await(result).status shouldBe NOT_FOUND

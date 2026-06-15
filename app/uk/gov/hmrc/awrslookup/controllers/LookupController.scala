@@ -22,10 +22,10 @@ import metrics.AwrsLookupMetrics
 import java.time.LocalDate
 import play.api.Environment
 import play.api.libs.json.{JsString, JsSuccess, JsValue, Json}
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.awrslookup.models.ApiType
 import uk.gov.hmrc.awrslookup.models.ApiType.ApiType
-import uk.gov.hmrc.awrslookup.models.frontend._
+import uk.gov.hmrc.awrslookup.models.frontend.SearchResult
 import uk.gov.hmrc.awrslookup.services.LookupService
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -38,7 +38,7 @@ class LookupController @Inject()(environment: Environment,
                                  controllerComponents: ControllerComponents,
                                  metrics: AwrsLookupMetrics,
                                  lookupService: LookupService,
-                                 loggingUtils: LoggingUtils)(implicit ec: ExecutionContext) extends BackendController(controllerComponents) {
+                                 loggingUtils: LoggingUtils)(using ec: ExecutionContext) extends BackendController(controllerComponents) {
 
   private val referenceNotFoundString = "AWRS reference not found"
 
@@ -46,17 +46,18 @@ class LookupController @Inject()(environment: Environment,
   private val codeNode = "code"
 
   def lookupByUrn(awrsRef: String): Action[AnyContent] = Action.async {
-    implicit request =>
+    request =>
+      given Request[AnyContent] = request
       val timer = metrics.startTimer(ApiType.LookupByURN)
       lookupService.lookupByUrn(awrsRef) map {
         response =>
           timer.stop()
-          processResponse(response, ApiType.LookupByURN)(SearchResult.etmpByUrnReader(environment = environment), hc)
+          processResponse(response, ApiType.LookupByURN)(using SearchResult.etmpByUrnReader(using environment), hc)
       }
   }
 
   // Temporary code to prevent confidential information being logged if Json cannot be parsed
-  private def parseSearchResultAndPreventSensitiveInfoLeakOnFailure(json: JsValue)(implicit fjs: play.api.libs.json.Reads[SearchResult]): SearchResult = {
+  private def parseSearchResultAndPreventSensitiveInfoLeakOnFailure(json: JsValue)(using fjs: play.api.libs.json.Reads[SearchResult]): SearchResult = {
     try {
       json.as[SearchResult]
     } catch {
@@ -64,7 +65,7 @@ class LookupController @Inject()(environment: Environment,
     }
   }
 
-  def processResponse(lookupResponse: HttpResponse, apiType: ApiType)(implicit fjs: play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier): Result = {
+  def processResponse(lookupResponse: HttpResponse, apiType: ApiType)(using fjs: play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier): Result = {
     lookupResponse.status match {
       case OK =>
         val status = (lookupResponse.json \ "awrsStatus").validate[String]
@@ -121,7 +122,7 @@ class LookupController @Inject()(environment: Environment,
                          action: String,
                          message: String,
                          eventType: String,
-                         incrementCounter: ApiType => Unit)(implicit hc: HeaderCarrier): Unit = {
+                         incrementCounter: ApiType => Unit)(using hc: HeaderCarrier): Unit = {
     incrementCounter(apiType)
     loggingUtils.audit(loggingUtils.auditLookupTxName, Map(action -> message), eventType)
   }

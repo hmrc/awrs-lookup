@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class SearchResult(results: List[AwrsEntry])
 
 object SearchResult {
 
-  def etmpByUrnReader(implicit environment: play.api.Environment): Reads[SearchResult] = (js: JsValue) => for {
+  def etmpByUrnReader(using environment: play.api.Environment): Reads[SearchResult] = (js: JsValue) => for {
     result <- js.validate[AwrsEntry](AwrsEntry.etmpReader)
   } yield {
     SearchResult(results = List(result))
   }
 
-  implicit val frontEndFormatter: OFormat[SearchResult] = Json.format[SearchResult]
+  given OFormat[SearchResult] = Json.format[SearchResult]
 }

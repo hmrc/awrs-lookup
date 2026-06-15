@@ -27,12 +27,12 @@ import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Base64, UUID}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 class EtmpHipConnector @Inject() (http: HttpClientV2,
                               loggingUtils: LoggingUtils,
                               config: ServicesConfig)
-                             (implicit ec: ExecutionContext) {
+                             (using ec: ExecutionContext) {
 
   lazy val serviceURL: String = config.baseUrl("hip")
   private val baseURI: String = "/etmp/RESTAdapter/awrs"
@@ -58,7 +58,7 @@ class EtmpHipConnector @Inject() (http: HttpClientV2,
     formatter.format(ZonedDateTime.now(ZoneId.of("UTC")))
   }
 
-  def lookupByUrn(awrsRefNo: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def lookupByUrn(awrsRefNo: String)(using hc: HeaderCarrier): Future[HttpResponse] = {
 
     val lookupByUrnUrl = s"""$serviceURL$baseURI$lookupURI$awrsRefNo"""
 

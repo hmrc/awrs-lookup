@@ -23,22 +23,25 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Environment
 import play.api.i18n.{I18nSupport, MessagesApi}
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.language.implicitConversions
 
+import scala.language.implicitConversions
 import scala.concurrent.Future
 
 trait AwrsUnitTestTraits extends PlaySpec with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite with I18nSupport {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given HeaderCarrier = HeaderCarrier()
 
-  implicit def convertToOption[T](value: T): Option[T] = Some(value)
+  given convertToOption[T]: Conversion[T, Option[T]] with
+    def apply(value: T): Option[T] = Some(value)
 
-  implicit def convertToFuture[T](value: T): Future[Option[T]] = Future.successful(value)
+  given convertToSuccessfulFuture[T]: Conversion[T, Future[Option[T]]] with
+    def apply(value: T): Future[Option[T]] = Future.successful(value)
 
-  implicit def convertToFuture[T](err: Throwable): Future[Option[T]] = Future.failed(err)
+  given convertToFailedFuture[T]: Conversion[Throwable, Future[Option[T]]] with
+    def apply(err: Throwable): Future[Option[T]] = Future.failed(err)
 
-  implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  implicit val environment: Environment = app.injector.instanceOf[Environment]
+  given environment: Environment = app.injector.instanceOf[Environment]
 
 }

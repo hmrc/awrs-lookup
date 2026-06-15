@@ -18,7 +18,7 @@ package uk.gov.hmrc.awrslookup.models.frontend
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 
 sealed trait AwrsStatus {
@@ -36,12 +36,12 @@ object AwrsStatus {
       Revoked,
       DeRegistered)
 
-  implicit val reader: Reads[AwrsStatus] = (json: JsValue) => JsSuccess(json match {
+  given Reads[AwrsStatus] = (json: JsValue) => JsSuccess(json match {
     case JsString(code) => apply(code)
     case _ => apply("-01")
   })
 
-  implicit val writer: Writes[AwrsStatus] = (v: AwrsStatus) => JsString(v.code)
+  given Writes[AwrsStatus] = (v: AwrsStatus) => JsString(v.code)
 
   def apply(code: String): AwrsStatus = code match {
     case Approved.code => Approved

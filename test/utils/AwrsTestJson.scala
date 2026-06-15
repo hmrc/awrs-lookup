@@ -16,7 +16,7 @@
 
 package utils
 
-import utils.TestUtil._
+import utils.TestUtil.*
 
 object AwrsTestJson extends AwrsTestJson
 
