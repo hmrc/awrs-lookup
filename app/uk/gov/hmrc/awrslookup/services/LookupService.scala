@@ -18,14 +18,14 @@ package uk.gov.hmrc.awrslookup.services
 
 import uk.gov.hmrc.awrslookup.connectors.EtmpHipConnector
 import play.api.http.Status
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class LookupService @Inject()(etmpHipConnector: EtmpHipConnector)
-                             (implicit ec: ExecutionContext) {
+                             (using ec: ExecutionContext) {
 
   val Success = "success"
 
@@ -38,7 +38,7 @@ class LookupService @Inject()(etmpHipConnector: EtmpHipConnector)
     }
   }
 
-  def lookupByUrn(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def lookupByUrn(awrsRefNo: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     etmpHipConnector.lookupByUrn(awrsRefNo).map {
       response =>
         response.status match {

@@ -17,10 +17,13 @@
 package uk.gov.hmrc.awrslookup.models.frontend
 
 import play.api.Environment
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.{EtmpDateReader, EtmpDateReaderTemp}
+import uk.gov.hmrc.awrslookup.models.frontend.*
+import uk.gov.hmrc.http.InternalServerException
 
-trait AwrsEntry {
+sealed trait AwrsEntry {
   def awrsRef: String
 
   def registrationDate: Option[String]
@@ -32,24 +35,55 @@ trait AwrsEntry {
   def info: Info
 }
 
+case class Business(awrsRef: String,
+                    registrationDate: Option[String] = None,
+                    status: AwrsStatus,
+                    info: Info,
+                    registrationEndDate: Option[String] = None
+                   ) extends AwrsEntry
+
+object Business {
+
+  given frontEndFormatter: OFormat[Business] = Json.format[Business]
+}
+
+case class Group(awrsRef: String,
+                 registrationDate: Option[String] = None,
+                 status: AwrsStatus,
+                 info: Info,
+                 members: List[Info],
+                 registrationEndDate: Option[String] = None
+                ) extends AwrsEntry
+
+object Group {
+
+  given frontEndFormatter: OFormat[Group] = Json.format[Group]
+}
+
 object AwrsEntry {
 
-  def unapply(foo: AwrsEntry): Option[(String, JsValue)] = {
-    foo match {
-      case b: Business => Some(b.productPrefix -> Json.toJson(b)(Business.frontEndFormatter))
-      case b: Group => Some(b.productPrefix -> Json.toJson(b)(Group.frontEndFormatter))
-      case _ => None
+  def unapply(awrsEntry: AwrsEntry): (String, JsValue) = {
+    val json = awrsEntry match {
+      case business: Business => Json.toJson(business)(Business.frontEndFormatter)
+      case group: Group => Json.toJson(group)(Group.frontEndFormatter)
     }
+    awrsEntry.getClass.getSimpleName -> json
   }
 
   def apply(`class`: String, data: JsValue): AwrsEntry = {
     (`class` match {
       case "Business" => Json.fromJson[Business](data)(Business.frontEndFormatter)
       case "Group" => Json.fromJson[Group](data)(Group.frontEndFormatter)
-    }).get
+    }).getOrElse(throw new InternalServerException("Error deserializing AwrsEntry"))
   }
 
-  implicit val frontEndFormatter: OFormat[AwrsEntry] = Json.format[AwrsEntry]
+  implicit val reads: Reads[AwrsEntry] = (
+    (JsPath \ "class").read[String] and (JsPath \ "data").read[JsValue]
+    )(AwrsEntry.apply _)
+
+  implicit val writes: OWrites[AwrsEntry] = (
+    (JsPath \ "class").write[String] and (JsPath \ "data").write[JsValue]
+    )(AwrsEntry.unapply)
 
   def etmpReader(implicit environment: Environment): Reads[AwrsEntry] = (js: JsValue) => {
     for {

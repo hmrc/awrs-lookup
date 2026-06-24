@@ -15,18 +15,17 @@
  */
 
 package connectors
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.awrslookup.connectors.EtmpHipConnector
 import uk.gov.hmrc.awrslookup.utils.LoggingUtils
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.AwrsTestConstants._
+import utils.AwrsTestConstants.*
 import utils.AwrsTestJson
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,8 +35,8 @@ class EtmpHipConnectorTest extends PlaySpec with GuiceOneServerPerSuite  with Co
   val servicesConfig: ServicesConfig = mock[ServicesConfig]
   val loggingUtils: LoggingUtils = mock[LoggingUtils]
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
-  implicit val httpReads: HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
+  given ExecutionContext = scala.concurrent.ExecutionContext.global
+  given HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
 
   object TestEtmpHipConnector$ extends EtmpHipConnector(mockHttpClient, loggingUtils, servicesConfig)
 

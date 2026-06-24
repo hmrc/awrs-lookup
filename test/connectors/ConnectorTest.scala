@@ -17,12 +17,12 @@
 package connectors
 
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, SessionId}
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 
 import java.net.URL
 import java.util.UUID
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSugar {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
   val requestBuilder: RequestBuilder = mock[RequestBuilder]
   when(mockHttpClient.get(any[URL])(any[HeaderCarrier])).thenReturn(requestBuilder)

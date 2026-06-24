@@ -27,7 +27,7 @@ case class Address(addressLine1: Option[String] = None,
                    addressCountry: Option[String] = None)
 object Address {
 
-  def etmpReader(implicit environment: play.api.Environment): Reads[Address] = new Reads[Address] {
+  def etmpReader(using environment: play.api.Environment): Reads[Address] = new Reads[Address] {
     def reads(js: JsValue): JsResult[Address] =
       for {
         addressLine1 <- (js \ "addressLine1").validateOpt[String]
@@ -42,5 +42,5 @@ object Address {
       }
   }
 
-  implicit val frontEndFormatter: OFormat[Address] = Json.format[Address]
+  given OFormat[Address] = Json.format[Address]
 }

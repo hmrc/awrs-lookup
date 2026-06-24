@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.models.frontend
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class Info(businessName: Option[String] = None,
                 tradingName: Option[String] = None,
@@ -26,7 +26,7 @@ case class Info(businessName: Option[String] = None,
 
 object Info {
 
-  def etmpReader(implicit environment: play.api.Environment): Reads[Info] = new Reads[Info] {
+  def etmpReader(using environment: play.api.Environment): Reads[Info] = new Reads[Info] {
     def reads(js: JsValue): JsResult[Info] = {
       // should accommodate for both styles. i.e. whether it includes a sub level of groupMember or not
       val memberLevelJs = (js \ "groupMember").getOrElse(js)
@@ -43,5 +43,5 @@ object Info {
     }
   }
 
-  implicit val frontEndFormatter: OFormat[Info] = Json.format[Info]
+  given OFormat[Info] = Json.format[Info]
 }

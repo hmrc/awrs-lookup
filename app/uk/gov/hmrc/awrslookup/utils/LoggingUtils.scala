@@ -42,7 +42,7 @@ class LoggingUtils @Inject()(auditable: Auditable) extends Logging {
   private def splunkToLogger(transactionName: String, detail: Map[String, String], eventType: String): String =
     s"${if (eventType.nonEmpty) eventType + "\n"}$transactionName\n$detail"
 
-  private def splunkFunction(transactionName: String, detail: Map[String, String], eventType: String)(implicit hc: HeaderCarrier): Unit = {
+  private def splunkFunction(transactionName: String, detail: Map[String, String], eventType: String)(using hc: HeaderCarrier): Unit = {
     logger.debug(splunkString + splunkToLogger(transactionName, detail, eventType))
     auditable.sendDataEvent(
       transactionName = transactionName,
@@ -51,7 +51,7 @@ class LoggingUtils @Inject()(auditable: Auditable) extends Logging {
     )
   }
 
-  def audit(transactionName: String, detail: Map[String, String], eventType: String)(implicit hc: HeaderCarrier): Unit
+  def audit(transactionName: String, detail: Map[String, String], eventType: String)(using hc: HeaderCarrier): Unit
   = splunkFunction(transactionName, detail, eventType)
 
   @inline def err(msg: String): Unit = logger.error(msg)

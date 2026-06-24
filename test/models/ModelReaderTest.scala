@@ -17,15 +17,16 @@
 package models
 
 import java.time.LocalDate
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.awrslookup.models.etmp.formatters.EtmpDateReader
 import uk.gov.hmrc.awrslookup.models.frontend.{AwrsStatus, Business, Group, SearchResult}
 import utils.{AwrsTestJson, AwrsUnitTestTraits}
-import utils.TestUtil._
+import utils.TestUtil.*
 
 import java.time.format.DateTimeFormatter
+import scala.language.implicitConversions
 
 class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
 
@@ -164,7 +165,7 @@ class ModelReaderTest extends PlaySpec with AwrsUnitTestTraits {
     }
   }
 
-  implicit class JsonStringUtil(jsonString: String) {
+  extension (jsonString: String) {
 
     def updateEtmpCountry(newCountry: String): String =
       updateJson(
