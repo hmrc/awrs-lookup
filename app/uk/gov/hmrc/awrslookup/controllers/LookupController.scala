@@ -16,10 +16,7 @@
 
 package uk.gov.hmrc.awrslookup.controllers
 
-import javax.inject.Inject
 import metrics.AwrsLookupMetrics
-
-import java.time.LocalDate
 import play.api.Environment
 import play.api.libs.json.{JsString, JsSuccess, JsValue, Json}
 import play.api.mvc.*
@@ -31,6 +28,8 @@ import uk.gov.hmrc.awrslookup.utils.LoggingUtils
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
@@ -56,15 +55,6 @@ class LookupController @Inject()(environment: Environment,
       }
   }
 
-  // Temporary code to prevent confidential information being logged if Json cannot be parsed
-  private def parseSearchResultAndPreventSensitiveInfoLeakOnFailure(json: JsValue)(using fjs: play.api.libs.json.Reads[SearchResult]): SearchResult = {
-    try {
-      json.as[SearchResult]
-    } catch {
-      case _: Exception => throw new RuntimeException("Error parsing lookup response Json")
-    }
-  }
-
   def processResponse(lookupResponse: HttpResponse, apiType: ApiType)(using fjs: play.api.libs.json.Reads[SearchResult], hc: HeaderCarrier): Result = {
     lookupResponse.status match {
       case OK =>
@@ -79,13 +69,13 @@ class LookupController @Inject()(environment: Environment,
             } else {
               doAuditing(apiType, "Search Result", "success", loggingUtils.eventTypeSuccess, metrics.incrementSuccessCounter)
 
-              val convertedJson = parseSearchResultAndPreventSensitiveInfoLeakOnFailure(lookupResponse.json)
+              val convertedJson = lookupResponse.json.as[SearchResult]
 
               Ok(Json.toJson(convertedJson))
             }
           case _ =>
             doAuditing(apiType, "Search Result", "success", loggingUtils.eventTypeSuccess, metrics.incrementSuccessCounter)
-            val convertedJson = parseSearchResultAndPreventSensitiveInfoLeakOnFailure(lookupResponse.json)
+            val convertedJson = lookupResponse.json.as[SearchResult]
             Ok(Json.toJson(convertedJson))
         }
       case NOT_FOUND =>
